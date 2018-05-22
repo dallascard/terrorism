@@ -28,7 +28,7 @@ def main():
     preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefix)
 
 
-def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefix, ner_types):
+def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefix):
 
     df = pd.read_csv(csv_file, header=0, index_col=0)
     n_rows, n_columns = df.shape
