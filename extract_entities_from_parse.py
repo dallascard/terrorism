@@ -122,7 +122,7 @@ def process_parse(parse, names, age):
 
     # also look for certain patterns
     for sent_i, sent in enumerate(parse['sentences']):
-        for t_i, token in sent['tokens']:
+        for t_i, token in enumerate(sent['tokens']):
             lemma = token['lemma'].lower()
             word = token['word'].lower()
             if lemma == 'gunman' or lemma == 'shooter':
