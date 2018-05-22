@@ -46,7 +46,8 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
             print(i)
 
         valid = df.loc[i, 'matching']
-        names = df.loc[i, 'shooter_names'].split()
+        name = str(df.loc[i, 'shooter_names'])
+        names = name.split()
         age = str(df.loc[i, 'age'])
 
         if valid:
