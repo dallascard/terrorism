@@ -56,8 +56,8 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
             parse = fh.read_json(filename)
 
             # get the text and convert to tokens
-            sentences, lemmas, pos_tags, speakers, dependencies, target_mentions, pos_tags = process_parse(parse, names, age)
-            pos_tags_all.update(pos_tags)
+            sentences, lemmas, pos_tags, speakers, dependencies, target_mentions, age_pos_tags = process_parse(parse, names, age)
+            pos_tags_all.update(age_pos_tags)
 
             # write output for e2e-coref
             coref_input.append({"id": i,
@@ -131,7 +131,7 @@ def process_parse(parse, names, age):
                 target_mentions_flat.append({'sent': sent, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
 
     # also look for certain patterns
-    pos_tags = set()
+    age_pos_tags = set()
     for sent_i, sent in enumerate(parse['sentences']):
         for t_i, token in enumerate(sent['tokens']):
             lemma = token['lemma'].lower()
@@ -141,14 +141,14 @@ def process_parse(parse, names, age):
                 target_mentions[sent_i][t_i].append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
                 target_mentions_flat.append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
             if word == age_mention:
-                pos_tags.add(pos)
+                age_pos_tags.add(pos)
                 governors = [arc['governor']-1 for arc in sent['enhancedPlusPlusDependencies'] if arc['dependent']-1 == t_i]
                 if len(governors) > 0:
                     governor = governors[0]
                     target_mentions[sent_i][governor].append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
                     target_mentions_flat.append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
 
-    return sentences, lemmas, pos_tags, speakers, dependencies, target_mentions_flat, pos_tags
+    return sentences, lemmas, pos_tags, speakers, dependencies, target_mentions_flat, age_pos_tags
 
 
 if __name__ == '__main__':
