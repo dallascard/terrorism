@@ -127,8 +127,8 @@ def process_parse(parse, names, age):
             lemma = token['lemma'].lower()
             word = token['word'].lower()
             if lemma == 'gunman' or lemma == 'shooter':
-                target_mentions[sent_i][t_i].append({'sent': sent, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
-                target_mentions_flat.append({'sent': sent, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
+                target_mentions[sent_i][t_i].append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
+                target_mentions_flat.append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
             if word == age_mention:
                 governors = [arc['governor']-1 for arc in sent['enhancedPlusPlusDependencies'] if arc['dependent']-1 == t_i]
                 if len(governors) > 0:
