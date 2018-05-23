@@ -127,11 +127,11 @@ def process_parse(parse, names, age):
                 start = mention['startIndex'] - 1
                 end = mention['endIndex'] - 1
                 head_index = mention['headIndex'] - 1
-                word = [sentences[sent_i][head_index]]
-                print(sent_i, start, end, word)
+                word = sentences[sent_i][head_index]
                 if word in names:
-
+                    print(sent_i, start, end, word)
                     if (sent_i, start, end) in ner_mentions:
+                        print(True)
                         include_this_entity = True
 
         if include_this_entity:
