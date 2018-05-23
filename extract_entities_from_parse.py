@@ -114,17 +114,15 @@ def process_parse(parse, names, age):
         for mention in mentions:
             if not include_this_entity:
                 sent = mention['sentNum'] - 1
-                start = mention['startIndex'] - 1
-                end = mention['endIndex'] - 1
+                #start = mention['startIndex'] - 1
+                #end = mention['endIndex'] - 1
                 head_index = mention['headIndex'] - 1
-                words = [lemmas[sent][index] for index in range(start, end)]
-                for word in words:
-                    if word in names:
-                        include_this_entity = True
+                word = [lemmas[sent][head_index]]
+                if word in names:
+                    include_this_entity = True
 
         if include_this_entity:
             for mention in mentions:
-                print(mention)
                 sent = mention['sentNum'] - 1
                 start = mention['startIndex'] - 1
                 end = mention['endIndex'] - 1
@@ -140,15 +138,17 @@ def process_parse(parse, names, age):
             word = token['word'].lower()
             pos = token['pos']
             if lemma == 'gunman' or lemma == 'shooter':
-                target_mentions[sent_i][t_i].append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
-                target_mentions_flat.append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
+                if t_i not in target_mentions[sent]:
+                    target_mentions[sent_i][t_i].append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
+                    target_mentions_flat.append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
             if word == age_mention:
                 age_pos_tags.add(pos)
                 governors = [arc['governor']-1 for arc in sent['enhancedPlusPlusDependencies'] if arc['dependent']-1 == t_i]
                 if len(governors) > 0:
                     governor = governors[0]
-                    target_mentions[sent_i][governor].append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
-                    target_mentions_flat.append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
+                    if governor not in target_mentions[sent_i]:
+                        target_mentions[sent_i][governor].append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
+                        target_mentions_flat.append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
 
     return sentences, lemmas, pos_tags, speakers, dependencies, target_mentions_flat, age_pos_tags
 
