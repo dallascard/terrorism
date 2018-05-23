@@ -36,7 +36,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
     files = glob.glob(os.path.join(parsed_dir, '*.json'))
     n_files = len(files)
 
-    assert n_files == n_rows
+    #assert n_files == n_rows
 
     coref_input = []
 
