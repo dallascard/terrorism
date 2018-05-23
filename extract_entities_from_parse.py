@@ -126,7 +126,7 @@ def process_parse(parse, names, age):
                 start = mention['startIndex'] - 1
                 end = mention['endIndex'] - 1
                 head_index = mention['headIndex'] - 1
-                word = [lemmas[sent_i][head_index]]
+                word = [sentences[sent_i][head_index]]
                 if word in names:
                     print(sent_i, start, end)
                     if (sent_i, start, end) in ner_mentions:
