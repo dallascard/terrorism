@@ -103,6 +103,11 @@ def process_parse(parse, names, age):
         dependencies.append(deps)
         target_mentions[sent_i] = defaultdict(list)
 
+        for mention in sent['entitymentions']:
+            # make note of which entities have a PERSON mention (or other NER types)
+            if mention['ner'] == 'PERSON':
+                ner_mentions[(sent_i, mention['tokenBegin'], mention['tokenEnd'])] = mention['ner']
+
     # no process the coref, looking for the person of interest
     corefs = parse['corefs']
     keys = list(corefs.keys())
@@ -113,22 +118,22 @@ def process_parse(parse, names, age):
         # take all corefering entities that mention the target
         for mention in mentions:
             if not include_this_entity:
-                sent = mention['sentNum'] - 1
-                #start = mention['startIndex'] - 1
-                #end = mention['endIndex'] - 1
+                sent_i = mention['sentNum'] - 1
+                start = mention['startIndex'] - 1
+                end = mention['endIndex'] - 1
                 head_index = mention['headIndex'] - 1
-                word = [lemmas[sent][head_index]]
-                if word in names:
+                word = [lemmas[sent_i][head_index]]
+                if word in names and (sent_i, start, end) in ner_mentions:
                     include_this_entity = True
 
         if include_this_entity:
             for mention in mentions:
-                sent = mention['sentNum'] - 1
+                sent_i = mention['sentNum'] - 1
                 start = mention['startIndex'] - 1
                 end = mention['endIndex'] - 1
                 head = mention['headIndex'] - 1
-                target_mentions[sent][head].append({'sent': sent, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
-                target_mentions_flat.append({'sent': sent, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
+                target_mentions[sent_i][head].append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
+                target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
 
     # also look for certain patterns
     age_pos_tags = set()
