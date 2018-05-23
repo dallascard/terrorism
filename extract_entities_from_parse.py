@@ -78,7 +78,6 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
 
 def process_parse(parse, names, age):
 
-    print(names, age)
     sentences = []
     lemmas = []
     pos_tags = []
@@ -119,13 +118,13 @@ def process_parse(parse, names, age):
                 end = mention['endIndex'] - 1
                 head_index = mention['headIndex'] - 1
                 words = [lemmas[sent][index] for index in range(start, end)]
-                print(words)
                 for word in words:
                     if word in names:
                         include_this_entity = True
 
         if include_this_entity:
             for mention in mentions:
+                print(mention)
                 sent = mention['sentNum'] - 1
                 start = mention['startIndex'] - 1
                 end = mention['endIndex'] - 1
