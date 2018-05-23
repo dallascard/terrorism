@@ -40,6 +40,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
 
     coref_input = []
 
+    pos_tags_all = set()
     print("Parsing %d documents" % n_files)
     for i in range(n_files):
         if i % 1000 == 0 and i > 0:
@@ -55,7 +56,8 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
             parse = fh.read_json(filename)
 
             # get the text and convert to tokens
-            sentences, lemmas, pos_tags, speakers, dependencies, target_mentions = process_parse(parse, names, age)
+            sentences, lemmas, pos_tags, speakers, dependencies, target_mentions, pos_tags = process_parse(parse, names, age)
+            pos_tags_all.update(pos_tags)
 
             # write output for e2e-coref
             coref_input.append({"id": i,
@@ -71,6 +73,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
 
         fh.write_jsonlist(coref_input, os.path.join(output_dir, output_prefix + '.parsed.jsonlist'))
 
+    print(pos_tags_all)
 
 def process_parse(parse, names, age):
 
@@ -106,11 +109,17 @@ def process_parse(parse, names, age):
     for key in keys:
         include_this_entity = False
         mentions = corefs[key]
-        # take all corefering entities that mentin the target
+        # take all corefering entities that mention the target
         for mention in mentions:
-            head = mention['headIndex'] - 1
-            if head in names:
-                include_this_entity = True
+            if not include_this_entity:
+                sent = mention['sentNum'] - 1
+                start = mention['startIndex'] - 1
+                end = mention['endIndex'] - 1
+                head_index = mention['headIndex'] - 1
+                words = [lemmas[sent][index] for index in range(start, end)]
+                for word in words:
+                    if word in names:
+                        include_this_entity = True
 
         if include_this_entity:
             for mention in mentions:
@@ -122,21 +131,24 @@ def process_parse(parse, names, age):
                 target_mentions_flat.append({'sent': sent, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
 
     # also look for certain patterns
+    pos_tags = set()
     for sent_i, sent in enumerate(parse['sentences']):
         for t_i, token in enumerate(sent['tokens']):
             lemma = token['lemma'].lower()
             word = token['word'].lower()
+            pos = token['pos']
             if lemma == 'gunman' or lemma == 'shooter':
                 target_mentions[sent_i][t_i].append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
                 target_mentions_flat.append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
             if word == age_mention:
+                pos_tags.add(pos)
                 governors = [arc['governor']-1 for arc in sent['enhancedPlusPlusDependencies'] if arc['dependent']-1 == t_i]
                 if len(governors) > 0:
                     governor = governors[0]
                     target_mentions[sent_i][governor].append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
                     target_mentions_flat.append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
 
-    return sentences, lemmas, pos_tags, speakers, dependencies, target_mentions_flat
+    return sentences, lemmas, pos_tags, speakers, dependencies, target_mentions_flat, pos_tags
 
 
 if __name__ == '__main__':
