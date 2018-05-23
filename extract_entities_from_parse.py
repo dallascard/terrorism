@@ -78,6 +78,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
 
 def process_parse(parse, names, age):
 
+    print(names, age)
     sentences = []
     lemmas = []
     pos_tags = []
