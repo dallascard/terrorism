@@ -108,6 +108,10 @@ def process_parse(parse, names, age):
             if mention['ner'] == 'PERSON':
                 ner_mentions[(sent_i, mention['tokenBegin'], mention['tokenEnd'])] = mention['ner']
 
+
+    for q in ner_mentions:
+        print(q)
+    print('---')
     # no process the coref, looking for the person of interest
     corefs = parse['corefs']
     keys = list(corefs.keys())
@@ -123,8 +127,10 @@ def process_parse(parse, names, age):
                 end = mention['endIndex'] - 1
                 head_index = mention['headIndex'] - 1
                 word = [lemmas[sent_i][head_index]]
-                if word in names and (sent_i, start, end) in ner_mentions:
-                    include_this_entity = True
+                if word in names:
+                    print(sent_i, start, end)
+                    if (sent_i, start, end) in ner_mentions:
+                        include_this_entity = True
 
         if include_this_entity:
             for mention in mentions:
