@@ -138,7 +138,7 @@ def process_parse(parse, names, age):
             word = token['word'].lower()
             pos = token['pos']
             if lemma == 'gunman' or lemma == 'shooter':
-                if t_i not in target_mentions[sent]:
+                if t_i not in target_mentions[sent_i]:
                     target_mentions[sent_i][t_i].append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
                     target_mentions_flat.append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
             if word == age_mention:
