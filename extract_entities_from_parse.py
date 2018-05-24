@@ -152,8 +152,9 @@ def process_parse(parse, names, age):
             for word in words:
                 if word in names:
                     # assume the last token is the head, since this is a person
-                    target_mentions[sent_i][end-1].append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
-                    target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
+                    if end-1 not in target_mentions[sent_i]:
+                        target_mentions[sent_i][end-1].append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
+                        target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
 
     # also look for certain patterns
     age_pos_tags = set()
