@@ -145,7 +145,7 @@ def process_parse(parse, names, age):
                 target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
 
     # add persons with matching names that haven't already been added
-    for mention, value in ner_mentions.values():
+    for mention, value in ner_mentions.items():
         if value == 0:
             sent_i, start, end = mention
             words = [sentences[sent_i][t_i] for t_i in range(start, end)]
