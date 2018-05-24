@@ -73,8 +73,6 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
 
         fh.write_jsonlist(coref_input, os.path.join(output_dir, output_prefix + '.parsed.jsonlist'))
 
-    print(pos_tags_all)
-
 
 def process_parse(parse, names, age):
 
@@ -163,13 +161,15 @@ def process_parse(parse, names, age):
                     target_mentions[sent_i][t_i].append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
                     target_mentions_flat.append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
             if word == age_mention:
-                if pos == 'JJ':
-                    governors = [arc['governor']-1 for arc in sent['enhancedPlusPlusDependencies'] if arc['dependent']-1 == t_i]
-                    if len(governors) > 0:
-                        governor = governors[0]
+                # use the governor if this is a JJ/amod XX-year-old, otherwise, treat it as a noun phrase
+                governors = [(arc['governor']-1, arc['dep']) for arc in sent['enhancedPlusPlusDependencies'] if arc['dependent']-1 == t_i]
+                if len(governors) > 0:
+                    governor = governors[0]
+                    if pos == 'JJ' and governor[1] == 'amod':
+                        governor_id = governor[0]
                         if governor not in target_mentions[sent_i]:
-                            target_mentions[sent_i][governor].append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
-                            target_mentions_flat.append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
+                            target_mentions[sent_i][governor].append({'sent': sent_i, 'head': governor_id, 'start': governor_id, 'end': governor_id+1, 'text': word, 'isRepresentative': False})
+                            target_mentions_flat.append({'sent': sent_i, 'head': governor_id, 'start': governor_id, 'end': governor_id+1, 'text': word, 'isRepresentative': False})
                 else:
                     if t_i not in target_mentions[sent_i]:
                         target_mentions[sent_i][t_i].append({'sent': sent_i, 'head': t_i, 'start': t_i, 'end': t_i+1, 'text': word, 'isRepresentative': False})
