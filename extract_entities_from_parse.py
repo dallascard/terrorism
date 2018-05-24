@@ -78,7 +78,6 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
 
 def process_parse(parse, names, age):
 
-    print(names)
     sentences = []
     lemmas = []
     pos_tags = []
@@ -112,10 +111,6 @@ def process_parse(parse, names, age):
                 ner_mentions[(sent_i, start, end)] = 0
 
 
-
-    for q in ner_mentions:
-        print(q)
-    print('---')
     # now process the coref, looking for the person of interest
     corefs = parse['corefs']
     keys = list(corefs.keys())
