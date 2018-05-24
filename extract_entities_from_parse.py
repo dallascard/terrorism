@@ -163,13 +163,17 @@ def process_parse(parse, names, age):
                     target_mentions[sent_i][t_i].append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
                     target_mentions_flat.append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
             if word == age_mention:
-                age_pos_tags.add(pos)
-                governors = [arc['governor']-1 for arc in sent['enhancedPlusPlusDependencies'] if arc['dependent']-1 == t_i]
-                if len(governors) > 0:
-                    governor = governors[0]
-                    if governor not in target_mentions[sent_i]:
-                        target_mentions[sent_i][governor].append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
-                        target_mentions_flat.append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
+                if pos == 'JJ':
+                    governors = [arc['governor']-1 for arc in sent['enhancedPlusPlusDependencies'] if arc['dependent']-1 == t_i]
+                    if len(governors) > 0:
+                        governor = governors[0]
+                        if governor not in target_mentions[sent_i]:
+                            target_mentions[sent_i][governor].append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
+                            target_mentions_flat.append({'sent': sent_i, 'head': governor, 'start': governor, 'end': governor+1, 'text': word, 'isRepresentative': False})
+                else:
+                    if t_i not in target_mentions[sent_i]:
+                        target_mentions[sent_i][t_i].append({'sent': sent_i, 'head': t_i, 'start': t_i, 'end': t_i+1, 'text': word, 'isRepresentative': False})
+                        target_mentions_flat.append({'sent': sent_i, 'head': t_i, 'start': t_i, 'end': t_i+1, 'text': word, 'isRepresentative': False})
 
     return sentences, lemmas, pos_tags, speakers, dependencies, target_mentions_flat, age_pos_tags
 

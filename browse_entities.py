@@ -8,6 +8,8 @@ from bokeh.models.widgets import Div
 from bokeh.layouts import column, row
 from bokeh.models.widgets import Select, TextInput
 
+import pandas as pd
+
 import file_handling as fh
 
 # run like: bokeh serve --show browse_entities.py
@@ -32,11 +34,28 @@ colors = [
 ]
 
 data = fh.read_jsonlist(os.path.join('data', 'msa', 'all.parsed.jsonlist'))
+df = pd.read_csv(os.path.join('data', 'msa', 'articles.csv'), header=0, index_col=0)
+
+events = {}
+docs_to_events = {}
+for i in df.index:
+    event_id = str(df.loc[i, 'df_index'])
+    events[event_id] = event_id + ': ' + df.loc[i, 'title']
+    docs_to_events[i] = event_id
+
+events_to_docs = defaultdict(list)
+for doc_i, doc in enumerate(data):
+    doc_id = doc['id']
+    event_id = docs_to_events[doc_id]
+    events_to_docs[int(event_id)].append(str(doc_i))
 
 
+event_titles = list(events.values())
+
+event_select = Select(title="Event",  value=event_titles[0], options=event_titles)
 doc_select = Select(title="Document", value=str(0), options=[str(i) for i in range(len(data))])
 #ner_select = Select(title="Entity type", value='', options=[''])
-entity_select = Select(title="Entity", value='', options=[''])
+#entity_select = Select(title="Entity", value='', options=[''])
 #entity_types = defaultdict(set)
 selected_entity = 0
 
@@ -44,38 +63,55 @@ div = Div(text="", width=600, height=200)
 
 box = widgetbox(div)
 
-layout = column(row(doc_select, entity_select), widgetbox(div))
+layout = column(row(event_select, doc_select), widgetbox(div))
 
 curdoc().add_root(layout)
 
 
-def update_div(selected_entity):
-    doc_index = doc_select.value
+def update_div(doc_index):
+    print("update div")
+    #doc_index = doc_select.value
     doc = data[int(doc_index)]
     sentences = copy.deepcopy(doc['sentences'])
     coref = doc['coref']
 
     color = '#3498DB'
-    entity = coref[int(selected_entity)]
-    print(selected_entity)
-    print(entity)
+    entity = coref[0]
     for mention in entity:
         sent = mention['sent']
         start = mention['start']
         end = mention['end']
         sentences[sent][start] = '<font color=' + color + '>[' + sentences[sent][start]
-        sentences[sent][end-1] = sentences[sent][end-1] + ']<sub>' + str(selected_entity) + '</sub></font>'
+        #sentences[sent][end-1] = sentences[sent][end-1] + ']<sub>' + str(selected_entity) + '</sub></font>'
+        sentences[sent][end-1] = sentences[sent][end-1] + ']</font>'
 
     sentences = [' '.join(words) for words in sentences]
-    print(sentences)
     text = '\n\n'.join(['<p>' + sent + '</p>' for sent in sentences])
     div.update(text=text)
-    print(doc['sentences'])
+
+
+def update_selected_event(attrname, old, new):
+    print("update_selected_event")
+    print(new)
+    update_document_list(new)
+
+
+def update_document_list(event_title):
+    print("update_document_list")
+    event_id = int(event_title.split(':')[0])
+    print(event_id)
+    docs = events_to_docs[event_id]
+    print(docs)
+    doc_select.options = docs
+    if len(docs) > 0:
+        doc_select.value = docs[0]
 
 
 def update_selected_document(attrname, old, new):
+    print("update_selected_document")
     print(new)
-    update_entity_list(int(new))
+    #update_entity_list(int(new))
+    update_div(new)
 
 
 """
@@ -102,6 +138,7 @@ def update_selected_entity_type(attrname, old, new):
     update_entity_list(new)
 """
 
+"""
 def update_entity_list(doc_index):
     print('in update_entity_list')
     #entity_indices = list(entity_types[entity_type])
@@ -135,10 +172,11 @@ def update_selected_entity(attrname, old, new):
     #entity_type = ' '.join(parts[1:])
     selected_entity = int(index)
     update_div(selected_entity)
+"""
 
-
+event_select.on_change('value', update_selected_event)
 doc_select.on_change('value', update_selected_document)
 #ner_select.on_change('value', update_selected_entity_type)
-entity_select.on_change('value', update_selected_entity)
+#entity_select.on_change('value', update_selected_entity)
 
 doc_select.value = '0'
