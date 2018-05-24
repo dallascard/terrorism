@@ -107,13 +107,16 @@ def process_parse(parse, names, age):
         for mention in sent['entitymentions']:
             # make note of which entities have a PERSON mention (or other NER types)
             if mention['ner'] == 'PERSON':
-                ner_mentions[(sent_i, mention['tokenBegin'], mention['tokenEnd'])] = mention['ner']
+                start = mention['tokenBegin']
+                end = mention['tokenEnd']
+                ner_mentions[(sent_i, start, end)] = 0
+
 
 
     for q in ner_mentions:
         print(q)
     print('---')
-    # no process the coref, looking for the person of interest
+    # now process the coref, looking for the person of interest
     corefs = parse['corefs']
     keys = list(corefs.keys())
     keys.sort()
@@ -122,17 +125,15 @@ def process_parse(parse, names, age):
         mentions = corefs[key]
         # take all corefering entities that mention the target
         for mention in mentions:
-            if not include_this_entity:
-                sent_i = mention['sentNum'] - 1
-                start = mention['startIndex'] - 1
-                end = mention['endIndex'] - 1
-                head_index = mention['headIndex'] - 1
-                word = sentences[sent_i][head_index]
-                if word in names:
-                    print(sent_i, start, end, word)
-                    if (sent_i, start, end) in ner_mentions:
-                        print(True)
-                        include_this_entity = True
+            sent_i = mention['sentNum'] - 1
+            start = mention['startIndex'] - 1
+            end = mention['endIndex'] - 1
+            head_index = mention['headIndex'] - 1
+            word = sentences[sent_i][head_index]
+            if word in names:
+                if (sent_i, start, end) in ner_mentions:
+                    include_this_entity = True
+                    ner_mentions[(sent_i, start, end)] = 1
 
         if include_this_entity:
             for mention in mentions:
@@ -142,6 +143,17 @@ def process_parse(parse, names, age):
                 head = mention['headIndex'] - 1
                 target_mentions[sent_i][head].append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
                 target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
+
+    # add persons with matching names that haven't already been added
+    for mention, value in ner_mentions.values():
+        if value == 0:
+            sent_i, start, end = mention
+            words = [sentences[sent_i][t_i] for t_i in range(start, end)]
+            for word in words:
+                if word in names:
+                    # assume the last token is the head, since this is a person
+                    target_mentions[sent_i][end-1].append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
+                    target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
 
     # also look for certain patterns
     age_pos_tags = set()
