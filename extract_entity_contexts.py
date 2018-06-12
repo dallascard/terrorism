@@ -69,6 +69,7 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
 
     word_counts = Counter()
 
+    n_articles_with_contexts = 0
     for line_i, line in enumerate(lines):
         if line_i % 1000 == 0 and line_i > 0:
             print(line_i)
@@ -112,6 +113,9 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
             if len(context_i) > 2:
                 entity_contexts[doc_id] = context_i
                 word_counts.update(context_i)
+                n_articles_with_contexts += 1
+
+    print("Articles with sufficient contexts:", n_articles_with_contexts)
 
     return word_counts, entity_contexts
 
