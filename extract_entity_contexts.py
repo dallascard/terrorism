@@ -14,6 +14,8 @@ def main():
     #                  help='Maximum number of words to keep: default=%default')
     parser.add_option('-m', dest='min_df', default=3,
                       help='Minimum occurrence count for context words: default=%default')
+    parser.add_option('-d', dest='max_depth', default=2,
+                      help='Max depth in parse tree: default=%default')
     parser.add_option('-p', dest='pos', default=None,
                       help='Filter by POS tag (e.g. JJ): default=%default')
     #parser.add_option('--boolarg', action="store_true", dest="boolarg", default=False,
@@ -25,6 +27,7 @@ def main():
     csv_file = args[1]
     output_dir = args[2]
 
+    max_depth = int(options.max_depth)
     min_df = int(options.min_df)
     pos = options.pos
 
@@ -34,7 +37,7 @@ def main():
     stopwords = set()
 
     # go through all documents and build a vocab of relevant tuple words
-    word_counts, entity_contexts = process_lines(lines, stopwords, pos=pos)
+    word_counts, entity_contexts = process_lines(lines, stopwords, max_depth=max_depth, pos=pos)
 
     print(word_counts.most_common(n=30))
 
@@ -57,7 +60,7 @@ def main():
     #_, entity_contexts = process_lines(lines, stopwords, vocab)
 
 
-def process_lines(lines, stopwords, depth=2, pos=None):
+def process_lines(lines, stopwords, max_depth=2, pos=None):
     """
     Call me twice! First with vocab=None to choose a vocab, and then with a learned vocab to extract entities
     """
@@ -94,7 +97,7 @@ def process_lines(lines, stopwords, depth=2, pos=None):
                 sentence = mention['sent']
                 head = mention['head']
 
-                neighbours = get_neighbours(deps, sentence, head, max_depth=depth)
+                neighbours = get_neighbours(deps, sentence, head, max_depth=max_depth)
 
                 #temp = []
                 for index in neighbours:
