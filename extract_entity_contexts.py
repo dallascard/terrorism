@@ -14,6 +14,8 @@ def main():
     #                  help='Maximum number of words to keep: default=%default')
     parser.add_option('-m', dest='min_df', default=3,
                       help='Minimum occurrence count for context words: default=%default')
+    parser.add_option('-p', dest='pos', default=None,
+                      help='Filter by POS tag (e.g. JJ): default=%default')
     #parser.add_option('--boolarg', action="store_true", dest="boolarg", default=False,
     #                  help='Keyword argument: default=%default')
 
@@ -24,6 +26,7 @@ def main():
     output_dir = args[2]
 
     min_df = int(options.min_df)
+    pos = options.pos
 
     lines = fh.read_jsonlist(infile)
     df = pd.read_csv(csv_file, header=0, index_col=0)
@@ -31,7 +34,7 @@ def main():
     stopwords = set()
 
     # go through all documents and build a vocab of relevant tuple words
-    word_counts, entity_contexts = process_lines(lines, stopwords)
+    word_counts, entity_contexts = process_lines(lines, stopwords, pos=pos)
 
     print(word_counts.most_common(n=30))
 
@@ -54,7 +57,7 @@ def main():
     #_, entity_contexts = process_lines(lines, stopwords, vocab)
 
 
-def process_lines(lines, stopwords, depth=2):
+def process_lines(lines, stopwords, depth=2, pos=None):
     """
     Call me twice! First with vocab=None to choose a vocab, and then with a learned vocab to extract entities
     """
@@ -70,6 +73,7 @@ def process_lines(lines, stopwords, depth=2):
         tokens = line['lemmas']
         deps = line['dependencies']
         corefs = line['coref']
+        pos_tags = line['pos_tags']
         assert len(corefs) == 1
         for e_i, entity in enumerate(corefs):
             context_i = []
@@ -90,7 +94,7 @@ def process_lines(lines, stopwords, depth=2):
                 sentence = mention['sent']
                 head = mention['head']
 
-                neighbours = get_neighbours(deps, sentence, head, max_depth=2)
+                neighbours = get_neighbours(deps, sentence, head, max_depth=2, pos=pos, pos_tags=pos_tags)
 
                 #temp = []
                 for index in neighbours:
@@ -117,7 +121,7 @@ def process_lines(lines, stopwords, depth=2):
     return word_counts, entity_contexts
 
 
-def get_neighbours(deps, sentence, head, max_depth=2):
+def get_neighbours(deps, sentence, head, max_depth=2, pos=None, pos_tags=None):
     visited = set()
     to_visit = [head]
     neighbours = set()
@@ -131,14 +135,22 @@ def get_neighbours(deps, sentence, head, max_depth=2):
         parent_index = arc_to_parent[1]
         if parent_index not in visited and parent_index not in to_visit:
             next_layer.append(parent_index)
-            neighbours.add(parent_index)
+            if pos is not None and pos_tags is not None:
+                if pos_tags[sentence][parent_index] == pos:
+                    neighbours.add(parent_index)
+            else:
+                neighbours.add(parent_index)
 
         children = [d for d in deps[sentence] if d[1] == node]
         for child in children:
             child_index = child[0]
             if child_index not in visited and child_index not in to_visit:
                 next_layer.append(child_index)
-                neighbours.add(child_index)
+                if pos is not None and pos_tags is not None:
+                    if pos_tags[sentence][child_index] == pos:
+                        neighbours.add(child_index)
+                else:
+                    neighbours.add(child_index)
 
         #print(to_visit, neighbours)
         if depth < max_depth:
