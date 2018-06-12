@@ -8,7 +8,7 @@ import pandas as pd
 import file_handling as fh
 
 def main():
-    usage = "%prog parsed.ids.fb.jsonlist articles.csv output_dir"
+    usage = "%prog parsed.ids.jsonlist articles.csv output_dir"
     parser = OptionParser(usage=usage)
     #parser.add_option('-v', dest='vocab_size', default=1000,
     #                  help='Maximum number of words to keep: default=%default')
@@ -94,25 +94,17 @@ def process_lines(lines, stopwords, depth=2, pos=None):
                 sentence = mention['sent']
                 head = mention['head']
 
-                neighbours = get_neighbours(deps, sentence, head, max_depth=2, pos=pos, pos_tags=pos_tags)
+                neighbours = get_neighbours(deps, sentence, head, max_depth=depth)
 
                 #temp = []
                 for index in neighbours:
                     token = tokens[sentence][index].lower()
                     if index not in mention_tokens[sentence] and re.match(r'[a-z]', token) is not None and token not in stopwords:
-                        context_i.append(token)
-                        #temp.append(token)
-                #print(' '.join([tokens[sentence][i] for i in range(start, end)]), ': ', ' '.join([t for t in temp]))
-
-
-                """
-                children = [d for d in deps[sentence] if d[1] == head]
-                for child in children:
-                    child_index = child[0]
-                    child_token = tokens[sentence][child_index].lower()
-                    if child_index not in mention_tokens and re.match(r'[a-z]', child_token) is not None and child_token not in stopwords:
-                        context_i.append(child_token)
-                """
+                        if pos is not None and pos_tags is not None:
+                            if pos_tags[sentence][index] == pos:
+                                context_i.append(token)
+                        else:
+                            context_i.append(token)
 
             if len(context_i) > 2:
                 entity_contexts[doc_id] = context_i
@@ -121,7 +113,7 @@ def process_lines(lines, stopwords, depth=2, pos=None):
     return word_counts, entity_contexts
 
 
-def get_neighbours(deps, sentence, head, max_depth=2, pos=None, pos_tags=None):
+def get_neighbours(deps, sentence, head, max_depth=2):
     visited = set()
     to_visit = [head]
     neighbours = set()
@@ -135,22 +127,14 @@ def get_neighbours(deps, sentence, head, max_depth=2, pos=None, pos_tags=None):
         parent_index = arc_to_parent[1]
         if parent_index not in visited and parent_index not in to_visit:
             next_layer.append(parent_index)
-            if pos is not None and pos_tags is not None:
-                if pos_tags[sentence][parent_index] == pos:
-                    neighbours.add(parent_index)
-            else:
-                neighbours.add(parent_index)
+            neighbours.add(parent_index)
 
         children = [d for d in deps[sentence] if d[1] == node]
         for child in children:
             child_index = child[0]
             if child_index not in visited and child_index not in to_visit:
                 next_layer.append(child_index)
-                if pos is not None and pos_tags is not None:
-                    if pos_tags[sentence][child_index] == pos:
-                        neighbours.add(child_index)
-                else:
-                    neighbours.add(child_index)
+                neighbours.add(child_index)
 
         #print(to_visit, neighbours)
         if depth < max_depth:
