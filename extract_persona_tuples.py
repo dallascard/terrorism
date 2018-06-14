@@ -98,9 +98,8 @@ def process_lines(lines, stopwords):
                 sentence = mention['sent']
                 head = mention['head']
 
-                neighbours = get_neighbours(deps, sentence, head)
+                neighbours = get_neighbours(deps, sentence, pos_tags, head)
 
-                #temp = []
                 for index, role_type in neighbours:
                     token = tokens[sentence][index].lower()
                     if index not in mention_tokens[sentence] and re.match(r'[a-z]', token) is not None and token not in stopwords:
