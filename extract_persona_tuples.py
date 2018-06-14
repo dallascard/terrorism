@@ -103,7 +103,7 @@ def process_lines(lines, stopwords):
                 for index, role_type in neighbours:
                     token = tokens[sentence][index].lower()
                     if index not in mention_tokens[sentence] and re.match(r'[a-z]', token) is not None and token not in stopwords:
-                        context_i.append(token + '_' + role_type)
+                        context_i.append(token + role_type)
 
             if len(context_i) > 2:
                 entity_contexts[doc_id] = context_i
