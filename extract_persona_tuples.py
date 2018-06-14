@@ -55,7 +55,7 @@ def main():
             event_name = df.loc[doc_id, 'title']
             outlines.append({'id': doc_id, 'text': ' '.join(words), 'event_name': event_name, 'name': event_name + '_' + str(doc_id)})
 
-    fh.write_jsonlist(outlines, os.path.join(output_dir, 'contexts.jsonlist'))
+    fh.write_jsonlist(outlines, os.path.join(output_dir, 'tuples.jsonlist'))
 
     #_, entity_contexts = process_lines(lines, stopwords, vocab)
 
@@ -101,14 +101,14 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
                 neighbours = get_neighbours(deps, sentence, head, max_depth=max_depth)
 
                 #temp = []
-                for index in neighbours:
+                for index, role_type in neighbours:
                     token = tokens[sentence][index].lower()
                     if index not in mention_tokens[sentence] and re.match(r'[a-z]', token) is not None and token not in stopwords:
                         if pos is not None and pos_tags is not None:
                             if pos_tags[sentence][index] == pos:
-                                context_i.append(token)
+                                context_i.append(token + '_' + role_type)
                         else:
-                            context_i.append(token)
+                            context_i.append(token + '_' + role_type)
 
             if len(context_i) > 2:
                 entity_contexts[doc_id] = context_i
@@ -120,7 +120,7 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
     return word_counts, entity_contexts
 
 
-def get_neighbours(deps, sentence, head, max_depth=2):
+def get_neighbours(deps, sentence, pos_tags, head):
     visited = set()
     to_visit = [head]
     neighbours = set()
@@ -131,22 +131,25 @@ def get_neighbours(deps, sentence, head, max_depth=2):
         node = to_visit.pop()
         visited.add(node)
         arc_to_parent = deps[sentence][node]
+        arc_type = arc_to_parent[2]
         parent_index = arc_to_parent[1]
+        parent_pos = pos_tags[sentence][parent_index]
         if parent_index not in visited and parent_index not in to_visit:
-            next_layer.append(parent_index)
-            neighbours.add(parent_index)
+            if parent_pos[0] == 'V' and (arc_type == 'nsubj' or arc_type == 'agent'):
+                neighbours.add((parent_index, 'A'))
+            elif parent_pos[0] == 'V' and (arc_type =='dobj' or arc_type == 'nsubjpass' or arc_type == 'iobj' or arc_type.startswith('nmod')):
+                neighbours.add((parent_index, 'P'))
+            elif (parent_pos[0] == 'J' or parent_pos[0] == 'N') and (arc_type == 'nsubj' or arc_type == 'appos'):
+                neighbours.add((parent_index, 'M'))
 
         children = [d for d in deps[sentence] if d[1] == node]
         for child in children:
             child_index = child[0]
+            child_pos = pos_tags[sentence][child_index]
+            arc_type = child[2]
             if child_index not in visited and child_index not in to_visit:
-                next_layer.append(child_index)
-                neighbours.add(child_index)
-
-        #print(to_visit, neighbours)
-        if depth < max_depth:
-            to_visit.extend(next_layer)
-        depth += 1
+                if (child_pos[0] == 'J' or child_pos[0] == 'N') and (arc_type == 'nsubj' or arc_type == 'appos' or arc_type == 'amod' or arc_type == 'compound'):
+                    neighbours.add((child_index, 'M'))
 
     return list(neighbours)
 
