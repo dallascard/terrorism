@@ -53,7 +53,12 @@ def main():
         words = [word for word in words if word in vocab_index]
         if len(words) > 0:
             event_name = df.loc[doc_id, 'title']
-            outlines.append({'id': doc_id, 'text': ' '.join(words), 'event_name': event_name, 'name': event_name + '_' + str(doc_id)})
+            race = df.loc[doc_id, 'race']
+            if race == 'White American or European American':
+                race = 1
+            else:
+                race = 0
+            outlines.append({'id': doc_id, 'text': ' '.join(words), 'event_name': event_name, 'race': race, 'name': event_name + '_' + str(doc_id)})
 
     fh.write_jsonlist(outlines, os.path.join(output_dir, 'contexts.jsonlist'))
 
