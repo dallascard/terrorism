@@ -33,10 +33,10 @@ colors = [
     '#616A6B'
 ]
 
-#data = fh.read_jsonlist(os.path.join('data', 'msa', 'all.parsed.jsonlist'))
-#df = pd.read_csv(os.path.join('data', 'msa', 'articles.csv'), header=0, index_col=0)
-data = fh.read_jsonlist(os.path.join('data', 'msa', 'from_links', 'all.parsed.jsonlist'))
-df = pd.read_csv(os.path.join('data', 'msa', 'from_links', 'articles.csv'), header=0, index_col=0)
+data = fh.read_jsonlist(os.path.join('data', 'msa', 'all.parsed.jsonlist'))
+df = pd.read_csv(os.path.join('data', 'msa', 'articles.csv'), header=0, index_col=0)
+#data = fh.read_jsonlist(os.path.join('data', 'msa', 'from_links', 'all.parsed.jsonlist'))
+#df = pd.read_csv(os.path.join('data', 'msa', 'from_links', 'articles.csv'), header=0, index_col=0)
 
 events = {}
 docs_to_events = {}

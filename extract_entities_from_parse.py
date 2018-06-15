@@ -125,11 +125,7 @@ def process_parse(parse, names, age):
             head_index = mention['headIndex'] - 1
             word = sentences[sent_i][head_index]
             words = sentences[sent_i][start:end]
-            for asdf in words:
-                if asdf in names:
-                    print(words)
             if word in names:
-                print(word)
                 if (sent_i, start, end) in ner_mentions:
                     include_this_entity = True
                     ner_mentions[(sent_i, start, end)] = 1
@@ -150,6 +146,7 @@ def process_parse(parse, names, age):
             words = [sentences[sent_i][t_i] for t_i in range(start, end)]
             for word in words:
                 if word in names:
+                    print(words)
                     # assume the last token is the head, since this is a person
                     if end-1 not in target_mentions[sent_i]:
                         target_mentions[sent_i][end-1].append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
