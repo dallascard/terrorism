@@ -50,7 +50,8 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
 
         valid = df.loc[i, 'matching']
         name = str(df.loc[i, 'shooter_names'])
-        #name = re.sub('Marteen', 'Mateen', name)
+        # fix an important name error
+        name = re.sub('Marteen', 'Mateen', name)
         names = name.split()
         age = str(df.loc[i, 'age'])
 
@@ -90,7 +91,7 @@ def process_parse(parse, names, age):
     ner_mentions = {}
     person_corefs = []
 
-    age_mention = str(age) + '-year-old'
+    age_mention = str(int(age)) + '-year-old'
 
     target_mentions = {}
     target_mentions_flat = []
@@ -175,10 +176,10 @@ def process_parse(parse, names, age):
                         if governor not in target_mentions[sent_i]:
                             target_mentions[sent_i][governor].append({'sent': sent_i, 'head': governor_id, 'start': governor_id, 'end': governor_id+1, 'text': word, 'isRepresentative': False})
                             target_mentions_flat.append({'sent': sent_i, 'head': governor_id, 'start': governor_id, 'end': governor_id+1, 'text': word, 'isRepresentative': False})
-                else:
-                    if t_i not in target_mentions[sent_i]:
-                        target_mentions[sent_i][t_i].append({'sent': sent_i, 'head': t_i, 'start': t_i, 'end': t_i+1, 'text': word, 'isRepresentative': False})
-                        target_mentions_flat.append({'sent': sent_i, 'head': t_i, 'start': t_i, 'end': t_i+1, 'text': word, 'isRepresentative': False})
+                    else:
+                        if t_i not in target_mentions[sent_i]:
+                            target_mentions[sent_i][t_i].append({'sent': sent_i, 'head': t_i, 'start': t_i, 'end': t_i+1, 'text': word, 'isRepresentative': False})
+                            target_mentions_flat.append({'sent': sent_i, 'head': t_i, 'start': t_i, 'end': t_i+1, 'text': word, 'isRepresentative': False})
 
     return sentences, lemmas, pos_tags, speakers, dependencies, target_mentions_flat, age_pos_tags
 
