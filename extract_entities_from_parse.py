@@ -59,7 +59,6 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
             parse = fh.read_json(filename)
 
             # get the text and convert to tokens
-            print(i, names, age)
             sentences, lemmas, pos_tags, speakers, dependencies, target_mentions, age_pos_tags = process_parse(parse, names, age)
             pos_tags_all.update(age_pos_tags)
 
@@ -74,6 +73,8 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
                                 "dependencies": dependencies,
                                 "coref": [target_mentions]
                                 })
+
+            print(i, names, age, len(target_mentions))
 
         fh.write_jsonlist(coref_input, os.path.join(output_dir, output_prefix + '.parsed.jsonlist'))
 
