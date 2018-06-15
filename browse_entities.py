@@ -33,11 +33,14 @@ colors = [
     '#616A6B'
 ]
 
-data = fh.read_jsonlist(os.path.join('data', 'msa', 'all.parsed.jsonlist'))
-df = pd.read_csv(os.path.join('data', 'msa', 'articles.csv'), header=0, index_col=0)
+#data = fh.read_jsonlist(os.path.join('data', 'msa', 'all.parsed.jsonlist'))
+#df = pd.read_csv(os.path.join('data', 'msa', 'articles.csv'), header=0, index_col=0)
+data = fh.read_jsonlist(os.path.join('data', 'msa', 'from_links', 'all.parsed.jsonlist'))
+df = pd.read_csv(os.path.join('data', 'msa', 'from_links', 'articles.csv'), header=0, index_col=0)
 
 events = {}
 docs_to_events = {}
+
 for i in df.index:
     event_id = str(df.loc[i, 'df_index'])
     events[event_id] = event_id + ': ' + df.loc[i, 'title']
@@ -48,7 +51,6 @@ for doc_i, doc in enumerate(data):
     doc_id = doc['id']
     event_id = docs_to_events[doc_id]
     events_to_docs[int(event_id)].append(str(doc_i))
-
 
 event_titles = list(events.values())
 

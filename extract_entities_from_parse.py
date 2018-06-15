@@ -32,6 +32,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
 
     df = pd.read_csv(csv_file, header=0, index_col=0)
     n_rows, n_columns = df.shape
+    print(df.shape)
 
     files = glob.glob(os.path.join(parsed_dir, '*.json'))
     n_files = len(files)
@@ -56,6 +57,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
             parse = fh.read_json(filename)
 
             # get the text and convert to tokens
+            print(i, names, age)
             sentences, lemmas, pos_tags, speakers, dependencies, target_mentions, age_pos_tags = process_parse(parse, names, age)
             pos_tags_all.update(age_pos_tags)
 
