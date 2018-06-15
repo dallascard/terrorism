@@ -128,7 +128,6 @@ def process_parse(parse, names, age):
             end = mention['endIndex'] - 1
             head_index = mention['headIndex'] - 1
             word = sentences[sent_i][head_index]
-            words = sentences[sent_i][start:end]
             if word in names:
                 if (sent_i, start, end) in ner_mentions:
                     include_this_entity = True
@@ -173,8 +172,8 @@ def process_parse(parse, names, age):
                     governor = governors[0]
                     if pos == 'JJ' and governor[1] == 'amod':
                         governor_id = governor[0]
-                        if governor not in target_mentions[sent_i]:
-                            target_mentions[sent_i][governor].append({'sent': sent_i, 'head': governor_id, 'start': governor_id, 'end': governor_id+1, 'text': word, 'isRepresentative': False})
+                        if governor_id not in target_mentions[sent_i]:
+                            target_mentions[sent_i][governor_id].append({'sent': sent_i, 'head': governor_id, 'start': governor_id, 'end': governor_id+1, 'text': word, 'isRepresentative': False})
                             target_mentions_flat.append({'sent': sent_i, 'head': governor_id, 'start': governor_id, 'end': governor_id+1, 'text': word, 'isRepresentative': False})
                     else:
                         if t_i not in target_mentions[sent_i]:
