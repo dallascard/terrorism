@@ -124,6 +124,9 @@ def process_parse(parse, names, age):
             end = mention['endIndex'] - 1
             head_index = mention['headIndex'] - 1
             word = sentences[sent_i][head_index]
+            words = sentences[sent_i][start:end]
+            if word in words:
+                print(words)
             if word in names:
                 print(word)
                 if (sent_i, start, end) in ner_mentions:
