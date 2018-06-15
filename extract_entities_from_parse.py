@@ -1,4 +1,5 @@
 import os
+import re
 import glob
 from optparse import OptionParser
 from collections import defaultdict
@@ -43,12 +44,13 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
 
     pos_tags_all = set()
     print("Parsing %d documents" % n_files)
-    for i in range(1076, n_files):
+    for i in range(n_files):
         if i % 1000 == 0 and i > 0:
             print(i)
 
         valid = df.loc[i, 'matching']
         name = str(df.loc[i, 'shooter_names'])
+        #name = re.sub('Marteen', 'Mateen', name)
         names = name.split()
         age = str(df.loc[i, 'age'])
 
@@ -146,7 +148,6 @@ def process_parse(parse, names, age):
             words = [sentences[sent_i][t_i] for t_i in range(start, end)]
             for word in words:
                 if word in names:
-                    print(words)
                     # assume the last token is the head, since this is a person
                     if end-1 not in target_mentions[sent_i]:
                         target_mentions[sent_i][end-1].append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
