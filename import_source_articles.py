@@ -23,6 +23,8 @@ def main():
 
     articles = []
 
+    exclude = ['murderpedia.org', 'www.gunviolencearchive.org', 'www.fbi.gov', 'en.wikipedia.org', 'www.history.com', 'web.archive.org']
+
     df = pd.read_csv(msa_db, header=0)
     index = df.index
     for i in index:
@@ -40,8 +42,12 @@ def main():
         for f in files:
             data = fh.read_json(f)
             text = data['text']
+            url = data['url']
+            parts = url.split('/')
+            domain = parts[2]
             if len(text) > 200:
-                articles.append({'id': str(i), 'caseid': str(caseid), 'event_name': title, 'text': text})
+                if domain not in exclude:
+                    articles.append({'id': str(i), 'caseid': str(caseid), 'event_name': title, 'text': text})
 
     fh.write_jsonlist(articles, output_filename, sort_keys=False)
 

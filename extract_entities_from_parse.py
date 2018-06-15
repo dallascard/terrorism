@@ -91,7 +91,7 @@ def process_parse(parse, names, age):
     ner_mentions = {}
     person_corefs = []
 
-    age_mention = str(int(age)) + '-year-old'
+    age_mention = str(age) + '-year-old'
 
     target_mentions = {}
     target_mentions_flat = []
