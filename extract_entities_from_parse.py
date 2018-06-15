@@ -43,7 +43,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
 
     pos_tags_all = set()
     print("Parsing %d documents" % n_files)
-    for i in range(n_files):
+    for i in range(1076, n_files):
         if i % 1000 == 0 and i > 0:
             print(i)
 
@@ -110,7 +110,6 @@ def process_parse(parse, names, age):
                 end = mention['tokenEnd']
                 ner_mentions[(sent_i, start, end)] = 0
 
-
     # now process the coref, looking for the person of interest
     corefs = parse['corefs']
     keys = list(corefs.keys())
@@ -125,6 +124,7 @@ def process_parse(parse, names, age):
             end = mention['endIndex'] - 1
             head_index = mention['headIndex'] - 1
             word = sentences[sent_i][head_index]
+            print(' '.join(sentences[sent_i][start:end]))
             if word in names:
                 print(word)
                 if (sent_i, start, end) in ner_mentions:
