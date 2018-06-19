@@ -115,7 +115,7 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
                         else:
                             context_i.append(token)
 
-            if len(context_i) > 2:
+            if len(context_i) > 3:
                 entity_contexts[doc_id] = context_i
                 word_counts.update(context_i)
                 n_articles_with_contexts += 1

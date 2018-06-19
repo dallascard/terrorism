@@ -34,7 +34,8 @@ def main():
     lines = fh.read_jsonlist(infile)
     df = pd.read_csv(csv_file, header=0, index_col=0)
 
-    stopwords = set()
+    stopwords = {'mr.', 'ms.', 'mrs.', 'major', 'maj.'}
+
 
     # go through all documents and build a vocab of relevant tuple words
     word_counts, entity_contexts = process_lines(lines, stopwords)
@@ -103,7 +104,7 @@ def process_lines(lines, stopwords):
                 for index, role_type in neighbours:
                     token = tokens[sentence][index].lower()
                     if index not in mention_tokens[sentence] and re.match(r'[a-z]', token) is not None and token not in stopwords:
-                        context_i.append(token + role_type)
+                        context_i.append(token)
 
             if len(context_i) > 2:
                 entity_contexts[doc_id] = context_i
@@ -115,7 +116,7 @@ def process_lines(lines, stopwords):
     return word_counts, entity_contexts
 
 
-def get_neighbours(deps, sentence, pos_tags, head):
+def get_neighbours(deps, sentence, pos_tags, head, include_agent=False, include_patient=False, include_mod=True):
     visited = set()
     to_visit = [head]
     neighbours = set()
@@ -130,11 +131,11 @@ def get_neighbours(deps, sentence, pos_tags, head):
         parent_index = arc_to_parent[1]
         parent_pos = pos_tags[sentence][parent_index]
         if parent_index not in visited and parent_index not in to_visit:
-            if parent_pos[0] == 'V' and (arc_type == 'nsubj' or arc_type == 'agent'):
+            if parent_pos[0] == 'V' and (arc_type == 'nsubj' or arc_type == 'agent') and include_agent:
                 neighbours.add((parent_index, 'A'))
-            elif parent_pos[0] == 'V' and (arc_type =='dobj' or arc_type == 'nsubjpass' or arc_type == 'iobj' or arc_type.startswith('nmod')):
+            elif parent_pos[0] == 'V' and (arc_type =='dobj' or arc_type == 'nsubjpass' or arc_type == 'iobj' or arc_type.startswith('nmod')) and include_patient:
                 neighbours.add((parent_index, 'P'))
-            elif (parent_pos[0] == 'J' or parent_pos[0] == 'N') and (arc_type == 'nsubj' or arc_type == 'appos'):
+            elif (parent_pos[0] == 'J' or parent_pos[0] == 'N') and (arc_type == 'nsubj' or arc_type == 'appos') and include_mod:
                 neighbours.add((parent_index, 'M'))
 
         children = [d for d in deps[sentence] if d[1] == node]
@@ -143,7 +144,7 @@ def get_neighbours(deps, sentence, pos_tags, head):
             child_pos = pos_tags[sentence][child_index]
             arc_type = child[2]
             if child_index not in visited and child_index not in to_visit:
-                if (child_pos[0] == 'J' or child_pos[0] == 'N') and (arc_type == 'nsubj' or arc_type == 'appos' or arc_type == 'amod' or arc_type == 'compound'):
+                if (child_pos[0] == 'J' or child_pos[0] == 'N') and (arc_type == 'nsubj' or arc_type == 'appos' or arc_type == 'amod' or arc_type == 'compound') and include_mod:
                     neighbours.add((child_index, 'M'))
 
     return list(neighbours)

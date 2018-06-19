@@ -50,12 +50,12 @@ events_to_docs = defaultdict(list)
 for doc_i, doc in enumerate(data):
     doc_id = doc['id']
     event_id = docs_to_events[doc_id]
-    events_to_docs[int(event_id)].append(str(doc_i))
+    events_to_docs[int(event_id)].append(str(doc_i) + ': ' + str(doc_id))
 
 event_titles = list(events.values())
 
 event_select = Select(title="Event",  value=event_titles[0], options=event_titles)
-doc_select = Select(title="Document", value=str(0), options=[str(i) for i in range(len(data))])
+doc_select = Select(title="Document", value=str(0), options=[])
 #ner_select = Select(title="Entity type", value='', options=[''])
 #entity_select = Select(title="Entity", value='', options=[''])
 #entity_types = defaultdict(set)
@@ -112,8 +112,9 @@ def update_document_list(event_title):
 def update_selected_document(attrname, old, new):
     print("update_selected_document")
     print(new)
+    doc_i, doc_id = new.split(':')
     #update_entity_list(int(new))
-    update_div(new)
+    update_div(doc_i)
 
 
 """
