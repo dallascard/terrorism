@@ -51,7 +51,7 @@ def main():
     outlines = []
     for doc_id, words in entity_contexts.items():
         words = [word for word in words if word in vocab_index]
-        if len(words) > 0:
+        if len(words) > 3:
             event_name = df.loc[doc_id, 'title']
             race = df.loc[doc_id, 'race']
             if race == 'White American or European American':
@@ -115,7 +115,7 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
                         else:
                             context_i.append(token)
 
-            if len(context_i) > 3:
+            if len(context_i) > 0:
                 entity_contexts[doc_id] = context_i
                 word_counts.update(context_i)
                 n_articles_with_contexts += 1
