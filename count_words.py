@@ -78,9 +78,10 @@ def main():
             for sentence in sentences:
                 tokens = [token['word'] for token in sentence['tokens']]
                 lower_tokens = [token.lower() for token in tokens]
+                sentence_text = ' '.join(tokens)
                 if age_string in lower_tokens:
                     age_found = True
-                if city in tokens:
+                if city in sentence_text:
                     city_found = True
                 for name in names:
                     if name in tokens:
