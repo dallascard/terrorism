@@ -49,7 +49,6 @@ def main():
 
     vocab_index = dict(zip(vocab, range(len(vocab))))
 
-    """
     outlines = []
     for doc_id, words in entity_contexts.items():
         # filter out duplicates
@@ -63,6 +62,7 @@ def main():
             else:
                 race = 0
             outlines.append({'id': doc_id, 'text': ' '.join(words), 'event_name': event_name, 'race': race, 'name': event_name + '_' + str(doc_id)})
+
     """
     all_events = {}
     for doc_id, words in entity_contexts.items():
@@ -78,7 +78,7 @@ def main():
     for key, value in all_events.items():
         if len(value['words']) > 2:
             outlines.append({'id': value['id'], 'text': ' '.join(value['words']), 'event_name': key})
-
+    """
     fh.write_jsonlist(outlines, os.path.join(output_dir, 'contexts.jsonlist'))
 
 
