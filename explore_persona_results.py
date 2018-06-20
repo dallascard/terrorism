@@ -39,28 +39,46 @@ def main():
             context = contexts[order[j]]
             print(context['event_name'], context['id'])
 
-    articles = indices['Columbine High School']
+    articles = indices['Fort Hood']
     subset = theta[articles, :]
     print(subset.mean(0))
-    #subset = subset / mean_freq
-    #print(subset.mean(0))
+    subset = subset / mean_freq
+    print(subset.mean(0))
     fig, ax = plt.subplots(1, 3, figsize=(8, 8))
     ax[0].imshow(subset)
+    print(np.bincount(np.argmax(subset, 1), minlength=n_topics))
 
     articles = indices['Fort Hood Army Base']
     subset = theta[articles, :]
     print(subset.mean(0))
-    #subset = subset / mean_freq
-    #print(subset.mean(0))
+    subset = subset / mean_freq
+    print(subset.mean(0))
     ax[1].imshow(subset)
+    print(np.bincount(np.argmax(subset, 1), minlength=n_topics))
 
-    articles = indices['Washington Navy Yard']
+    articles = indices['Massachusetts Abortion Clinic']
     subset = theta[articles, :]
     print(subset.mean(0))
-    #subset = subset / mean_freq
-    #print(subset.mean(0))
+    subset = subset / mean_freq
+    print(subset.mean(0))
     ax[2].imshow(subset)
+    print(np.bincount(np.argmax(subset, 1), minlength=n_topics))
 
+    articles = indices['Orlando Nightclub Massacre']
+    subset = theta[articles, :]
+    print(subset.mean(0))
+    subset = subset / mean_freq
+    print(subset.mean(0))
+    ax[2].imshow(subset)
+    print(np.bincount(np.argmax(subset, 1), minlength=n_topics))
+
+    articles = indices['Sandy Hook Elementary School']
+    subset = theta[articles, :]
+    print(subset.mean(0))
+    subset = subset / mean_freq
+    print(subset.mean(0))
+    ax[2].imshow(subset)
+    print(np.bincount(np.argmax(subset, 1), minlength=n_topics))
 
     plt.show()
 

@@ -1,9 +1,11 @@
 import os
 import re
+import copy
 import glob
 from optparse import OptionParser
 from collections import defaultdict
 
+import numpy as np
 import pandas as pd
 
 import file_handling as fh
@@ -44,7 +46,8 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
 
     pos_tags_all = set()
     print("Parsing %d documents" % n_files)
-    for i in range(n_files):
+    #for i in range(n_files):
+    for i in range(5):
         if i % 1000 == 0 and i > 0:
             print(i)
 
@@ -54,33 +57,33 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
         name = re.sub('Marteen', 'Mateen', name)
         names = name.split()
         age = str(df.loc[i, 'age'])
+        event_name = df.loc[i, 'title']
 
         if valid:
             filename = os.path.join(parsed_dir, parse_prefix + '_' + str(i) + '.json')
             parse = fh.read_json(filename)
 
             # get the text and convert to tokens
-            sentences, lemmas, pos_tags, speakers, dependencies, target_mentions, age_pos_tags = process_parse(parse, names, age)
-            pos_tags_all.update(age_pos_tags)
+            sentences, sentences_tagged = process_parse(parse, names, age, event_name)
 
             # write output for e2e-coref
             coref_input.append({"id": i,
                                 "clusters": [],
                                 "doc_key": "nw",
                                 "sentences": sentences,
-                                "lemmas": lemmas,
-                                "speakers": speakers,
-                                "pos_tags": pos_tags,
-                                "dependencies": dependencies,
-                                "coref": [target_mentions]
+                                "sentences_tagged": sentences_tagged
+                                #"speakers": speakers,
+                                #"pos_tags": pos_tags,
+                                #"dependencies": dependencies,
+                                #"coref": [target_mentions]
                                 })
 
-            print(i, names, age, len(target_mentions))
+            print(i, names, age)
 
         fh.write_jsonlist(coref_input, os.path.join(output_dir, output_prefix + '.parsed.jsonlist'))
 
 
-def process_parse(parse, names, age):
+def process_parse(parse, names, age, event_name):
 
     sentences = []
     lemmas = []
@@ -95,6 +98,8 @@ def process_parse(parse, names, age):
 
     target_mentions = {}
     target_mentions_flat = []
+
+    sentences_tagged = copy.deepcopy(parse['sentences'])
 
     # gather the tokens in each sentence and extract certain token patterns
     for sent_i, sent in enumerate(parse['sentences']):
@@ -127,11 +132,10 @@ def process_parse(parse, names, age):
             start = mention['startIndex'] - 1
             end = mention['endIndex'] - 1
             head_index = mention['headIndex'] - 1
-            word = sentences[sent_i][head_index]
-            if word in names:
-                if (sent_i, start, end) in ner_mentions:
-                    include_this_entity = True
-                    ner_mentions[(sent_i, start, end)] = 1
+            words = sentences[sent_i][start:end]
+            if np.all([word in names for word in words]):
+                include_this_entity = True
+                #ner_mentions[(sent_i, start, end)] = 1
 
         if include_this_entity:
             for mention in mentions:
@@ -139,10 +143,16 @@ def process_parse(parse, names, age):
                 start = mention['startIndex'] - 1
                 end = mention['endIndex'] - 1
                 head = mention['headIndex'] - 1
-                target_mentions[sent_i][head].append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
-                target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
+                sentences_tagged['sentences'][sent_i][start] = event_name
+                if end > start+1:
+                    for i in range(start+1, end):
+                        sentences_tagged['sentences'][sent_i][i] = '__DROP__'
+
+                #target_mentions[sent_i][head].append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
+                #target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
 
     # add persons with matching names that haven't already been added
+    """
     for mention, value in ner_mentions.items():
         if value == 0:
             sent_i, start, end = mention
@@ -153,7 +163,9 @@ def process_parse(parse, names, age):
                     if end-1 not in target_mentions[sent_i]:
                         target_mentions[sent_i][end-1].append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
                         target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
+    """
 
+    """
     # also look for certain patterns
     age_pos_tags = set()
     for sent_i, sent in enumerate(parse['sentences']):
@@ -179,8 +191,9 @@ def process_parse(parse, names, age):
                         if t_i not in target_mentions[sent_i]:
                             target_mentions[sent_i][t_i].append({'sent': sent_i, 'head': t_i, 'start': t_i, 'end': t_i+1, 'text': word, 'isRepresentative': False})
                             target_mentions_flat.append({'sent': sent_i, 'head': t_i, 'start': t_i, 'end': t_i+1, 'text': word, 'isRepresentative': False})
+    """
 
-    return sentences, lemmas, pos_tags, speakers, dependencies, target_mentions_flat, age_pos_tags
+    return sentences, sentences_tagged
 
 
 if __name__ == '__main__':
