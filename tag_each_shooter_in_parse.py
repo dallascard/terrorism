@@ -67,7 +67,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
             sentences, sentences_tagged, target_mentions, pos_tags, dependencies = process_parse(parse, names, age, event_name)
 
             sentences_pruned = []
-            for sent in sentences:
+            for sent in sentences_tagged:
                 tokens = [token for token in sent if token != '__DROP__']
                 sentences_pruned.append(' '.join(tokens))
             text_pruned = ' '.join(sentences_pruned)
@@ -83,7 +83,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
                                 "coref": [target_mentions]
                                 })
 
-            print(i, names, age)
+            print(i, names, age, len(target_mentions))
 
         fh.write_jsonlist(coref_input, os.path.join(output_dir, output_prefix + '.parsed.jsonlist'))
 
