@@ -47,7 +47,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
     pos_tags_all = set()
     print("Parsing %d documents" % n_files)
     #for i in range(n_files):
-    for i in range(5):
+    for i in range(n_files):
         if i % 1000 == 0 and i > 0:
             print(i)
 
@@ -64,18 +64,23 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
             parse = fh.read_json(filename)
 
             # get the text and convert to tokens
-            sentences, sentences_tagged = process_parse(parse, names, age, event_name)
+            sentences, sentences_tagged, target_mentions, pos_tags, dependencies = process_parse(parse, names, age, event_name)
+
+            sentences_pruned = []
+            for sent in sentences:
+                tokens = [token for token in sent if token != '__DROP__']
+                sentences_pruned.append(' '.join(tokens))
+            text_pruned = ' '.join(sentences_pruned)
 
             # write output for e2e-coref
             coref_input.append({"id": i,
                                 "clusters": [],
                                 "doc_key": "nw",
                                 "sentences": sentences,
-                                "sentences_tagged": sentences_tagged
-                                #"speakers": speakers,
-                                #"pos_tags": pos_tags,
-                                #"dependencies": dependencies,
-                                #"coref": [target_mentions]
+                                "text_tagged": text_pruned,
+                                "pos_tags": pos_tags,
+                                "dependencies": dependencies,
+                                "coref": [target_mentions]
                                 })
 
             print(i, names, age)
@@ -89,10 +94,7 @@ def process_parse(parse, names, age, event_name):
     lemmas = []
     pos_tags = []
     dependencies = []
-    #entities = []
-    speakers = []
     ner_mentions = {}
-    person_corefs = []
 
     age_mention = str(age) + '-year-old'
 
@@ -136,7 +138,8 @@ def process_parse(parse, names, age, event_name):
             words = sentences[sent_i][start:end]
             if np.all([word in names for word in words]):
                 include_this_entity = True
-                #ner_mentions[(sent_i, start, end)] = 1
+                if (sent_i, start, end) in ner_mentions:
+                    ner_mentions[(sent_i, start, end)] = 1
 
         if include_this_entity:
             for mention in mentions:
@@ -144,16 +147,16 @@ def process_parse(parse, names, age, event_name):
                 start = mention['startIndex'] - 1
                 end = mention['endIndex'] - 1
                 head = mention['headIndex'] - 1
-                sentences_tagged[sent_i][start] = event_name
-                if end > start+1:
-                    for i in range(start+1, end):
-                        sentences_tagged[sent_i][i] = '__DROP__'
+                if end - start < 4:
+                    sentences_tagged[sent_i][start] = event_name
+                    if end > start+1:
+                        for i in range(start+1, end):
+                            sentences_tagged[sent_i][i] = '__DROP__'
 
-                #target_mentions[sent_i][head].append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
-                #target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
+                    target_mentions[sent_i][head].append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
+                    target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
 
     # add persons with matching names that haven't already been added
-    """
     for mention, value in ner_mentions.items():
         if value == 0:
             sent_i, start, end = mention
@@ -162,11 +165,15 @@ def process_parse(parse, names, age, event_name):
                 if word in names:
                     # assume the last token is the head, since this is a person
                     if end-1 not in target_mentions[sent_i]:
-                        target_mentions[sent_i][end-1].append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
-                        target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
-    """
+                        if end - start < 4:
+                            target_mentions[sent_i][end-1].append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
+                            target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': ' '.join(words), 'head': end-1, 'isRepresentative': False})
+                            sentences_tagged[sent_i][start] = event_name
+                            if end > start+1:
+                                for j in range(start+1, end):
+                                    sentences_tagged[sent_i][j] = '__DROP__'
 
-    """
+
     # also look for certain patterns
     age_pos_tags = set()
     for sent_i, sent in enumerate(parse['sentences']):
@@ -178,6 +185,8 @@ def process_parse(parse, names, age, event_name):
                 if t_i not in target_mentions[sent_i]:
                     target_mentions[sent_i][t_i].append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
                     target_mentions_flat.append({'sent': sent_i, 'start': t_i, 'end': t_i+1, 'text': word, 'head': t_i, 'isRepresentative': False})
+                    sentences_tagged[sent_i][t_i] = event_name
+
             if word == age_mention:
                 # use the governor if this is a JJ/amod XX-year-old, otherwise, treat it as a noun phrase
                 governors = [(arc['governor']-1, arc['dep']) for arc in sent['enhancedPlusPlusDependencies'] if arc['dependent']-1 == t_i]
@@ -188,13 +197,16 @@ def process_parse(parse, names, age, event_name):
                         if governor_id not in target_mentions[sent_i]:
                             target_mentions[sent_i][governor_id].append({'sent': sent_i, 'head': governor_id, 'start': governor_id, 'end': governor_id+1, 'text': word, 'isRepresentative': False})
                             target_mentions_flat.append({'sent': sent_i, 'head': governor_id, 'start': governor_id, 'end': governor_id+1, 'text': word, 'isRepresentative': False})
+                            sentences_tagged[sent_i][governor_id] = event_name
+
                     else:
                         if t_i not in target_mentions[sent_i]:
                             target_mentions[sent_i][t_i].append({'sent': sent_i, 'head': t_i, 'start': t_i, 'end': t_i+1, 'text': word, 'isRepresentative': False})
                             target_mentions_flat.append({'sent': sent_i, 'head': t_i, 'start': t_i, 'end': t_i+1, 'text': word, 'isRepresentative': False})
-    """
+                            sentences_tagged[sent_i][t_i] = event_name
 
-    return sentences, sentences_tagged
+
+    return sentences, sentences_tagged, target_mentions_flat, pos_tags, dependencies
 
 
 if __name__ == '__main__':
