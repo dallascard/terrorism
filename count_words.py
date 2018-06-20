@@ -97,7 +97,7 @@ def main():
                     sentence_text = ' '.join(tokens)
                     if 'terrorism' in tokens or 'terrorist' in tokens:
                         terrorism_mention = True
-                        if 'not' in tokens or 'evidence' in tokens:
+                        if 'not' in tokens or re.match('no\s*\S* evidence', sentence_text):
                             print(sentence_text)
                         else:
                             unnegated_terrorism_mention = True
@@ -108,6 +108,7 @@ def main():
                     msa_df.loc[df_index, 'n_unnegated_terrorism_mentions'] += 1
 
     msa_df.to_csv(outfile)
+    print(msa_df.n_valid_articles.sum())
 
 
 if __name__ == '__main__':
