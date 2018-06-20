@@ -63,46 +63,49 @@ def main():
         age = str(df.loc[i, 'age'])
         age_string = str(age) + '-year-old'
         city = str(df.loc[i, 'city'])
+        title = df.loc[i, 'title']
 
-        age_found = False
-        name_found = False
-        city_found = False
+        # filter out an event that gets confused with Orlando
+        if title != 'Cape Coral Shooting Spree':
+            age_found = False
+            name_found = False
+            city_found = False
 
-        filename = os.path.join(parsed_dir, parse_prefix + '_' + str(i) + '.json')
-        parse = fh.read_json(filename)
+            filename = os.path.join(parsed_dir, parse_prefix + '_' + str(i) + '.json')
+            parse = fh.read_json(filename)
 
-        sentences = parse['sentences']
-        for sentence in sentences:
-            tokens = [token['word'] for token in sentence['tokens']]
-            lower_tokens = [token.lower() for token in tokens]
-            if age_string in lower_tokens:
-                age_found = True
-            if city in tokens:
-                city_found = True
-            for name in names:
-                if name in tokens:
-                    name_found = True
-
-        msa_df.loc[df_index, 'n_total_articles'] += 1
-        if age_found or city_found or name_found:
-            msa_df.loc[df_index, 'n_valid_articles'] += 1
-
-            terrorism_mention = False
-            unnegated_terrorism_mention = False
+            sentences = parse['sentences']
             for sentence in sentences:
-                tokens = [token['word'].lower() for token in sentence['tokens']]
-                sentence_text = ' '.join(tokens)
-                if 'terrorism' in tokens or 'terrorist' in tokens:
-                    terrorism_mention = True
-                    if 'not' in tokens or 'evidence' in tokens:
-                        print(sentence_text)
-                    else:
-                        unnegated_terrorism_mention = True
+                tokens = [token['word'] for token in sentence['tokens']]
+                lower_tokens = [token.lower() for token in tokens]
+                if age_string in lower_tokens:
+                    age_found = True
+                if city in tokens:
+                    city_found = True
+                for name in names:
+                    if name in tokens:
+                        name_found = True
 
-            if terrorism_mention:
-                msa_df.loc[df_index, 'n_terrorism_mentions'] += 1
-            if unnegated_terrorism_mention:
-                msa_df.loc[df_index, 'n_unnegated_terrorism_mentions'] += 1
+            msa_df.loc[df_index, 'n_total_articles'] += 1
+            if age_found or city_found or name_found:
+                msa_df.loc[df_index, 'n_valid_articles'] += 1
+
+                terrorism_mention = False
+                unnegated_terrorism_mention = False
+                for sentence in sentences:
+                    tokens = [token['word'].lower() for token in sentence['tokens']]
+                    sentence_text = ' '.join(tokens)
+                    if 'terrorism' in tokens or 'terrorist' in tokens:
+                        terrorism_mention = True
+                        if 'not' in tokens or 'evidence' in tokens:
+                            print(sentence_text)
+                        else:
+                            unnegated_terrorism_mention = True
+
+                if terrorism_mention:
+                    msa_df.loc[df_index, 'n_terrorism_mentions'] += 1
+                if unnegated_terrorism_mention:
+                    msa_df.loc[df_index, 'n_unnegated_terrorism_mentions'] += 1
 
     msa_df.to_csv(outfile)
 
