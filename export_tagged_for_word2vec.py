@@ -29,7 +29,7 @@ def main():
     for i in order:
         line = lines[i]
         text = line['text_tagged']
-        text = re.sub('_' '-', text)
+        text = re.sub('_', '-', text)
         text = text.lower()
         outlines.append(text)
 
