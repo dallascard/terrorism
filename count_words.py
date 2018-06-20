@@ -42,6 +42,9 @@ def main():
     msa_df['n_terrorism_mentions'] = 0
     msa_df['n_unnegated_terrorism_mentions'] = 0
 
+    for i in msa_df.index:
+        msa_df.loc[i, 'date'] = pd.to_datetime(msa_df.loc[i, 'Date'])
+
     for i in range(n_files):
         if i % 100 == 0 and i > 0:
             print(i)
@@ -55,6 +58,7 @@ def main():
         age = str(df.loc[i, 'age'])
         age_string = str(age) + '-year-old'
         city = str(df.loc[i, 'city'])
+
 
         age_found = False
         name_found = False
