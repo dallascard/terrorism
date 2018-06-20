@@ -76,7 +76,8 @@ def main():
 
     outlines = []
     for key, value in all_events.items():
-        outlines.append({'id': value['id'], 'text': ' '.join(value['words']), 'event_name': key})
+        if len(value['text']) > 2:
+            outlines.append({'id': value['id'], 'text': ' '.join(value['words']), 'event_name': key})
 
     fh.write_jsonlist(outlines, os.path.join(output_dir, 'contexts.jsonlist'))
 
