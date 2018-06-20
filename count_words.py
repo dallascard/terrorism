@@ -43,7 +43,11 @@ def main():
     msa_df['n_unnegated_terrorism_mentions'] = 0
 
     for i in msa_df.index:
-        msa_df.loc[i, 'date'] = pd.to_datetime(msa_df.loc[i, 'Date'])
+        date = pd.to_datetime(msa_df.loc[i, 'Date'])
+        msa_df.loc[i, 'date'] = date
+        msa_df.loc[i, 'year'] = date.year
+
+    msa_df = msa_df[msa_df.year >= 1990]
 
     for i in range(n_files):
         if i % 100 == 0 and i > 0:
