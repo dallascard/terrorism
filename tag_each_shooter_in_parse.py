@@ -57,7 +57,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
         name = re.sub('Marteen', 'Mateen', name)
         names = name.split()
         age = str(df.loc[i, 'age'])
-        event_name = df.loc[i, 'title']
+        event_name = re.sub('\s', '_', df.loc[i, 'title'])
 
         if valid:
             filename = os.path.join(parsed_dir, parse_prefix + '_' + str(i) + '.json')
@@ -99,12 +99,13 @@ def process_parse(parse, names, age, event_name):
     target_mentions = {}
     target_mentions_flat = []
 
-    sentences_tagged = copy.deepcopy(parse['sentences'])
+    sentences_tagged = []
 
     # gather the tokens in each sentence and extract certain token patterns
     for sent_i, sent in enumerate(parse['sentences']):
         # note: using lemmas instead of words!
         sentences.append([token['word'] for token in sent['tokens']])
+        sentences_tagged.append([token['word'] for token in sent['tokens']])
         lemmas.append([token['lemma'] for token in sent['tokens']])
         pos_tags.append([token['pos'] for token in sent['tokens']])
         deps = [(arc['dependent']-1, arc['governor']-1, arc['dep']) for arc in sent['enhancedPlusPlusDependencies']]
