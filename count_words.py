@@ -38,6 +38,7 @@ def main():
 
     assert n_files == n_rows
 
+    msa_df['n_total_articles'] = 0
     msa_df['n_valid_articles'] = 0
     msa_df['n_terrorism_mentions'] = 0
     msa_df['n_unnegated_terrorism_mentions'] = 0
@@ -63,7 +64,6 @@ def main():
         age_string = str(age) + '-year-old'
         city = str(df.loc[i, 'city'])
 
-
         age_found = False
         name_found = False
         city_found = False
@@ -82,6 +82,7 @@ def main():
                 if name in tokens:
                     name_found = True
 
+        msa_df.loc[df_index, 'n_total_articles'] += 1
         if age_found or city_found or name_found:
             msa_df.loc[df_index, 'n_valid_articles'] += 1
 
