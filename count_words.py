@@ -59,11 +59,10 @@ def main():
         name = str(df.loc[i, 'shooter_names'])
         # fix an important name error
         name = re.sub('Marteen', 'Mateen', name)
-        name = name.lower()
         names = name.split()
         age = str(df.loc[i, 'age'])
         age_string = str(age) + '-year-old'
-        city = str(df.loc[i, 'city']).lower()
+        city = str(df.loc[i, 'city'])
 
         age_found = False
         name_found = False
@@ -74,8 +73,9 @@ def main():
 
         sentences = parse['sentences']
         for sentence in sentences:
-            tokens = [token['word'].lower() for token in sentence['tokens']]
-            if age_string in tokens:
+            tokens = [token['word'] for token in sentence['tokens']]
+            lower_tokens = [token.lower() for token in tokens]
+            if age_string in lower_tokens:
                 age_found = True
             if city in tokens:
                 city_found = True
