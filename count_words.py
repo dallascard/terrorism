@@ -9,7 +9,7 @@ import file_handling as fh
 
 
 def main():
-    usage = "%prog articles.csv parsed_dir output_file.csv"
+    usage = "%prog msa_db.csv articles.csv parsed_dir output_file.csv"
     parser = OptionParser(usage=usage)
     parser.add_option('--prefix', dest='parse_prefix', default='all',
                       help='Prefix of parsed files: default=%default')
@@ -17,13 +17,17 @@ def main():
     #                  help='Keyword argument: default=%default')
 
     (options, args) = parser.parse_args()
-    articles_csv = args[0]
-    parsed_dir = args[1]
-    outfile = args[2]
+    msa_csv = args[0]
+    articles_csv = args[1]
+    parsed_dir = args[2]
+    outfile = args[3]
     parse_prefix = options.parse_prefix
 
     if os.path.exists(outfile):
         raise FileExistsError("outfile already exists!")
+
+    msa_df = pd.read_csv(msa_csv, header=0)
+    print(msa_df.shape)
 
     df = pd.read_csv(articles_csv, header=0, index_col=0)
     n_rows, n_columns = df.shape
@@ -34,9 +38,9 @@ def main():
 
     assert n_files == n_rows
 
-    df['n_valid_articles'] = 0
-    df['n_terrorism_mentions'] = 0
-    df['n_unnegated_terrorism_mentions'] = 0
+    msa_df['n_valid_articles'] = 0
+    msa_df['n_terrorism_mentions'] = 0
+    msa_df['n_unnegated_terrorism_mentions'] = 0
 
     for i in range(n_files):
         if i % 100 == 0 and i > 0:
@@ -71,7 +75,7 @@ def main():
                     name_found = True
 
         if age_found or city_found or name_found:
-            df.loc[df_index, 'n_valid_articles'] += 1
+            msa_df.loc[df_index, 'n_valid_articles'] += 1
 
             terrorism_mention = False
             unnegated_terrorism_mention = False
@@ -83,12 +87,13 @@ def main():
                     if 'not' in tokens or 'no evidence' in sentence_text:
                         print(sentence_text)
                     else:
+                        print(sentence_text)
                         unnegated_terrorism_mention = True
 
             if terrorism_mention:
-                df.loc[df_index, 'n_terrorism_mentions'] += 1
+                msa_df.loc[df_index, 'n_terrorism_mentions'] += 1
             if unnegated_terrorism_mention:
-                df.loc[df_index, 'n_unnegated_terrorism_mentions'] += 1
+                msa_df.loc[df_index, 'n_unnegated_terrorism_mentions'] += 1
 
     df.to_csv(outfile)
 
