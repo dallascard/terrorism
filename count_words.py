@@ -94,7 +94,7 @@ def main():
             if unnegated_terrorism_mention:
                 msa_df.loc[df_index, 'n_unnegated_terrorism_mentions'] += 1
 
-    df.to_csv(outfile)
+    msa_df.to_csv(outfile)
 
 
 if __name__ == '__main__':
