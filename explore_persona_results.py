@@ -39,12 +39,12 @@ def main():
             context = contexts[order[j]]
             print(context['event_name'], context['id'])
 
-    articles = indices['Fort Hood']
+    articles = indices['Columbine High School']
     subset = theta[articles, :]
     print(subset.mean(0))
     #subset = subset / mean_freq
     #print(subset.mean(0))
-    fig, ax = plt.subplots(1, 2, figsize=(8, 8))
+    fig, ax = plt.subplots(1, 3, figsize=(8, 8))
     ax[0].imshow(subset)
 
     articles = indices['Fort Hood Army Base']
@@ -53,6 +53,14 @@ def main():
     #subset = subset / mean_freq
     #print(subset.mean(0))
     ax[1].imshow(subset)
+
+    articles = indices['Washington Navy Yard']
+    subset = theta[articles, :]
+    print(subset.mean(0))
+    #subset = subset / mean_freq
+    #print(subset.mean(0))
+    ax[2].imshow(subset)
+
 
     plt.show()
 

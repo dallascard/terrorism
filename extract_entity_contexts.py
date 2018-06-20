@@ -86,6 +86,7 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
         pos_tags = line['pos_tags']
         assert len(corefs) == 1
         for e_i, entity in enumerate(corefs):
+            tokens_to_add = defaultdict(list)
             context_i = []
             # make note of which tokens are entity mentions to avoid including names as modifiers
             #entity = sorted(entity, key=lambda x: (x['sent'], x['start']))
@@ -112,11 +113,16 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
                     if index not in mention_tokens[sentence] and re.match(r'[a-z]', token) is not None and token not in stopwords:
                         if pos is not None and pos_tags is not None:
                             if pos_tags[sentence][index] == pos:
-                                context_i.append(token)
+                                tokens_to_add[sentence].append(index)
+                                #context_i.append(token)
                         else:
-                            context_i.append(token)
+                            tokens_to_add[sentence].append(index)
+                            #context_i.append(token)
 
-            if len(context_i) > 0:
+            if len(tokens_to_add) > 0:
+                for sentence, token_indices in tokens_to_add.items():
+                    for index in token_indices:
+                        context_i.append(tokens[sentence][index])
                 entity_contexts[doc_id] = context_i
                 word_counts.update(context_i)
                 n_articles_with_contexts += 1
