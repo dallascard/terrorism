@@ -48,10 +48,13 @@ def main():
     vocab.sort()
 
     vocab_index = dict(zip(vocab, range(len(vocab))))
+
+    """
     outlines = []
     for doc_id, words in entity_contexts.items():
         # filter out duplicates
         words = [word for word in words if word in vocab_index]
+        
         if len(words) > 2:
             event_name = df.loc[doc_id, 'title']
             race = df.loc[doc_id, 'race']
@@ -60,10 +63,22 @@ def main():
             else:
                 race = 0
             outlines.append({'id': doc_id, 'text': ' '.join(words), 'event_name': event_name, 'race': race, 'name': event_name + '_' + str(doc_id)})
+    """
+    all_events = {}
+    for doc_id, words in entity_contexts.items():
+        # filter out duplicates
+        words = [word for word in words if word in vocab_index]
+        event_name = df.loc[doc_id, 'title']
+        if event_name in all_events:
+            all_events[event_name]['words'] += words
+        else:
+            all_events[event_name] = {'id': doc_id, 'words': words, 'event_name': event_name, 'name': event_name + '_' + str(doc_id)}
+
+    outlines = []
+    for key, value in all_events.items():
+        outlines.append({'id': value['id'], 'text': ' '.join(value['words']), 'event_name': key})
 
     fh.write_jsonlist(outlines, os.path.join(output_dir, 'contexts.jsonlist'))
-
-    #_, entity_contexts = process_lines(lines, stopwords, vocab)
 
 
 def process_lines(lines, stopwords, max_depth=2, pos=None):
