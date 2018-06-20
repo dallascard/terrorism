@@ -84,8 +84,7 @@ def main():
                 sentence_text = ' '.join(tokens)
                 if 'terrorism' in tokens or 'terrorist' in tokens:
                     terrorism_mention = True
-                    #if 'not' in tokens or 'evidence' in tokens:
-                    if 'evidence' in tokens:
+                    if 'not' in tokens or 'evidence' in tokens:
                         print(sentence_text)
                     else:
                         unnegated_terrorism_mention = True
