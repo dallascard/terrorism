@@ -143,10 +143,10 @@ def process_parse(parse, names, age, event_name):
                 start = mention['startIndex'] - 1
                 end = mention['endIndex'] - 1
                 head = mention['headIndex'] - 1
-                sentences_tagged['sentences'][sent_i][start] = event_name
+                sentences_tagged[sent_i][start] = event_name
                 if end > start+1:
                     for i in range(start+1, end):
-                        sentences_tagged['sentences'][sent_i][i] = '__DROP__'
+                        sentences_tagged[sent_i][i] = '__DROP__'
 
                 #target_mentions[sent_i][head].append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
                 #target_mentions_flat.append({'sent': sent_i, 'start': start, 'end': end, 'text': mention['text'], 'head': mention['headIndex']-1, 'isRepresentative': mention['isRepresentativeMention']})
