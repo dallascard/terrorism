@@ -52,7 +52,7 @@ def main():
     outlines = []
     for doc_id, words in entity_contexts.items():
         words = [word for word in words if word in vocab_index]
-        if len(words) > 0:
+        if len(words) > 2:
             event_name = df.loc[doc_id, 'title']
             outlines.append({'id': doc_id, 'text': ' '.join(words), 'event_name': event_name, 'name': event_name + '_' + str(doc_id)})
 
@@ -106,7 +106,7 @@ def process_lines(lines, stopwords):
                     if index not in mention_tokens[sentence] and re.match(r'[a-z]', token) is not None and token not in stopwords:
                         context_i.append(token)
 
-            if len(context_i) > 2:
+            if len(context_i) > 0:
                 entity_contexts[doc_id] = context_i
                 word_counts.update(context_i)
                 n_articles_with_contexts += 1
@@ -116,7 +116,7 @@ def process_lines(lines, stopwords):
     return word_counts, entity_contexts
 
 
-def get_neighbours(deps, sentence, pos_tags, head, include_agent=False, include_patient=False, include_mod=True):
+def get_neighbours(deps, sentence, pos_tags, head, include_agent=True, include_patient=True, include_mod=True):
     visited = set()
     to_visit = [head]
     neighbours = set()

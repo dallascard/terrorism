@@ -50,8 +50,8 @@ def main():
     vocab_index = dict(zip(vocab, range(len(vocab))))
     outlines = []
     for doc_id, words in entity_contexts.items():
-        # fitler out duplicates
-        words = list(set([word for word in words if word in vocab_index]))
+        # filter out duplicates
+        words = [word for word in words if word in vocab_index]
         if len(words) > 2:
             event_name = df.loc[doc_id, 'title']
             race = df.loc[doc_id, 'race']
