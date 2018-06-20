@@ -59,10 +59,11 @@ def main():
         name = str(df.loc[i, 'shooter_names'])
         # fix an important name error
         name = re.sub('Marteen', 'Mateen', name)
+        name = name.lower()
         names = name.split()
         age = str(df.loc[i, 'age'])
         age_string = str(age) + '-year-old'
-        city = str(df.loc[i, 'city'])
+        city = str(df.loc[i, 'city']).lower()
 
         age_found = False
         name_found = False
