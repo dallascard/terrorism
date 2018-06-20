@@ -65,7 +65,7 @@ def main():
 
         sentences = parse['sentences']
         for sentence in sentences:
-            tokens = [token.lower() for token in sentence]
+            tokens = [token['word'].lower() for token in sentence]
             if age_string in tokens:
                 age_found = True
             if city in tokens:
@@ -80,14 +80,13 @@ def main():
             terrorism_mention = False
             unnegated_terrorism_mention = False
             for sentence in sentences:
-                tokens = [token.lower() for token in sentence]
+                tokens = [token['word'].lower() for token in sentence]
                 sentence_text = ' '.join(tokens)
                 if 'terrorism' in tokens or 'terrorist' in tokens:
                     terrorism_mention = True
                     if 'not' in tokens or 'no evidence' in sentence_text:
                         print(sentence_text)
                     else:
-                        print(sentence_text)
                         unnegated_terrorism_mention = True
 
             if terrorism_mention:
