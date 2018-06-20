@@ -39,7 +39,7 @@ def main():
     df['n_unnegated_terrorism_mentions'] = 0
 
     for i in range(n_files):
-        if i % 1000 == 0 and i > 0:
+        if i % 100 == 0 and i > 0:
             print(i)
 
         df_index = df.loc[i, 'df_index']
