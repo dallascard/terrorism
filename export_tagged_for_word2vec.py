@@ -30,6 +30,7 @@ def main():
         line = lines[i]
         text = line['text_tagged']
         text = re.sub('_', '-', text)
+        text = re.sub('\d', '#', text)
         text = text.lower()
         outlines.append(text)
 

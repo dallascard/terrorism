@@ -54,7 +54,7 @@ def main():
         if i % 100 == 0 and i > 0:
             print(i)
 
-        df_index = df.loc[i, 'df_index']
+        msa_id = df.loc[i, 'df_index']
         caseid = df.loc[i, 'caseid']
         name = str(df.loc[i, 'shooter_names'])
         # fix an important name error
@@ -66,7 +66,13 @@ def main():
         title = df.loc[i, 'title']
 
         # filter out an event that gets confused with Orlando
-        if title != 'Cape Coral Shooting Spree':
+        if msa_id == 272:
+            print("Skipping", i, title)
+        elif msa_id == 276:
+            print("Skipping", i, title)
+        elif msa_id == 331:
+            print("Skipping", i, title)
+        else:
             age_found = False
             name_found = False
             city_found = False
@@ -87,9 +93,9 @@ def main():
                     if name in tokens:
                         name_found = True
 
-            msa_df.loc[df_index, 'n_total_articles'] += 1
+            msa_df.loc[msa_id, 'n_total_articles'] += 1
             if age_found or city_found or name_found:
-                msa_df.loc[df_index, 'n_valid_articles'] += 1
+                msa_df.loc[msa_id, 'n_valid_articles'] += 1
 
                 terrorism_mention = False
                 unnegated_terrorism_mention = False
@@ -104,9 +110,9 @@ def main():
                             unnegated_terrorism_mention = True
 
                 if terrorism_mention:
-                    msa_df.loc[df_index, 'n_terrorism_mentions'] += 1
+                    msa_df.loc[msa_id, 'n_terrorism_mentions'] += 1
                 if unnegated_terrorism_mention:
-                    msa_df.loc[df_index, 'n_unnegated_terrorism_mentions'] += 1
+                    msa_df.loc[msa_id, 'n_unnegated_terrorism_mentions'] += 1
 
     msa_df.to_csv(outfile)
     print(msa_df.n_valid_articles.sum())

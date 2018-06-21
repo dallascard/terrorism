@@ -59,7 +59,15 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
         age = str(df.loc[i, 'age'])
         event_name = 'msa-' + re.sub('\s', '-', df.loc[i, 'title'])
 
-        if valid:
+        msa_index = int(df.loc[i, 'df_index'])
+
+        if msa_index == 272:
+            print("Skipping", i, event_name)
+        elif msa_index == 276:
+            print("Skipping", i, event_name)
+        elif msa_index == 331:
+            print("Skipping", i, event_name)
+        elif valid:
             filename = os.path.join(parsed_dir, parse_prefix + '_' + str(i) + '.json')
             parse = fh.read_json(filename)
 
