@@ -25,6 +25,9 @@ def main():
     n_items, n_topics = theta.shape
     mean_freq = theta.mean(0)
     print(theta.mean(0))
+    bincount = np.bincount(np.argmax(theta, 1), minlength=n_topics)
+    print(bincount)
+    print(bincount / float(bincount.sum()))
 
     indices = defaultdict(list)
     for i, context in enumerate(contexts):
@@ -56,23 +59,7 @@ def main():
     ax[1].imshow(subset)
     print(np.bincount(np.argmax(subset, 1), minlength=n_topics))
 
-    articles = indices['Massachusetts Abortion Clinic']
-    subset = theta[articles, :]
-    print(subset.mean(0))
-    subset = subset / mean_freq
-    print(subset.mean(0))
-    ax[2].imshow(subset)
-    print(np.bincount(np.argmax(subset, 1), minlength=n_topics))
-
-    articles = indices['Orlando Nightclub Massacre']
-    subset = theta[articles, :]
-    print(subset.mean(0))
-    subset = subset / mean_freq
-    print(subset.mean(0))
-    ax[2].imshow(subset)
-    print(np.bincount(np.argmax(subset, 1), minlength=n_topics))
-
-    articles = indices['Sandy Hook Elementary School']
+    articles = indices['Washington Navy Yard']
     subset = theta[articles, :]
     print(subset.mean(0))
     subset = subset / mean_freq

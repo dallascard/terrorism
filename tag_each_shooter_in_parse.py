@@ -57,7 +57,7 @@ def preprocess_data(csv_file, parsed_dir, output_dir, output_prefix, parse_prefi
         name = re.sub('Marteen', 'Mateen', name)
         names = name.split()
         age = str(df.loc[i, 'age'])
-        event_name = re.sub('\s', '_', df.loc[i, 'title'])
+        event_name = 'msa-' + re.sub('\s', '-', df.loc[i, 'title'])
 
         if valid:
             filename = os.path.join(parsed_dir, parse_prefix + '_' + str(i) + '.json')
