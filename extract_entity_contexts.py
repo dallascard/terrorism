@@ -96,7 +96,7 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
         if line_i % 1000 == 0 and line_i > 0:
             print(line_i)
         doc_id = line['id']
-        tokens = line['lemmas']
+        tokens = line['sentences']
         deps = line['dependencies']
         corefs = line['coref']
         pos_tags = line['pos_tags']
