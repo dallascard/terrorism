@@ -28,8 +28,8 @@ def main():
     outlines = []
 
     for line in lines:
-        doc_id = int(line['id'])
-        msa_id = articles_df.loc[doc_id, 'df_index']
+        msa_id = int(line['id'])
+        #msa_id = articles_df.loc[doc_id, 'df_index']
         line[field_name] = metadata_df.loc[msa_id, field_name]
         outlines.append(line)
 
