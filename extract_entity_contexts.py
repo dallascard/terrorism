@@ -56,12 +56,7 @@ def main():
         
         if len(words) > 2:
             event_name = df.loc[doc_id, 'title']
-            race = df.loc[doc_id, 'race']
-            if race == 'White American or European American':
-                race = 1
-            else:
-                race = 0
-            outlines.append({'id': doc_id, 'text': ' '.join(words), 'event_name': event_name, 'race': race, 'name': event_name + '_' + str(doc_id)})
+            outlines.append({'id': doc_id, 'text': ' '.join(words), 'event_name': event_name, 'name': event_name + '_' + str(doc_id)})
 
     """
     all_events = {}
