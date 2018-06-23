@@ -65,12 +65,23 @@ def main():
         city = str(df.loc[i, 'city'])
         title = df.loc[i, 'title']
 
-        # filter out an event that gets confused with Orlando
         if msa_id == 272:
+            # Kalamzoo duplicate
             print("Skipping", i, title)
         elif msa_id == 276:
+            # Belfair duplicate
+            print("Skipping", i, title)
+        elif msa_id == 293:
+            # Sherman, Texas duplicate
+            print("Skipping", i, title)
+        elif msa_id == 280:
+            # Chelsea, MA duplicate
+            print("Skipping", i, title)
+        elif msa_id == 283:
+            # Kansas City duplicate
             print("Skipping", i, title)
         elif msa_id == 331:
+            # Cape Coral
             print("Skipping", i, title)
         else:
             age_found = False
