@@ -129,7 +129,7 @@ def main():
                 if unnegated_terrorism_mention:
                     msa_df.loc[msa_id, 'n_unnegated_terrorism_mentions'] += 1
                 if mental_mention:
-                    msa_df.loc[msa_id, 'n_mental_mentions'] = 1
+                    msa_df.loc[msa_id, 'n_mental_mentions'] += 1
 
     msa_df.to_csv(outfile)
     print(msa_df.n_valid_articles.sum())
