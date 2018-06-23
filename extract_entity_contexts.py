@@ -31,7 +31,6 @@ def main():
     min_df = int(options.min_df)
     pos = options.pos
 
-
     lines = fh.read_jsonlist(infile)
     df = pd.read_csv(csv_file, header=0, index_col=0)
 
@@ -61,7 +60,7 @@ def main():
             outline = {'id': doc_id, 'text': ' '.join(words), 'event_name': event_name}
             outline['name'] = event_name + '_' + str(doc_id)
             outline['simple_race'] = df.loc[doc_id, 'simple_race']
-            outline['white'] = df.loc[doc_id, 'white']
+            outline['white'] = int(df.loc[doc_id, 'white'])
 
             outlines.append(outline)
 
