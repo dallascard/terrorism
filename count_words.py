@@ -49,7 +49,7 @@ def main():
         msa_df.loc[i, 'date'] = date
         msa_df.loc[i, 'year'] = date.year
 
-    msa_df = msa_df[msa_df.year >= 1990]
+    #msa_df = msa_df[msa_df.year >= 1990]
 
     for i in range(n_files):
         if i % 100 == 0 and i > 0:
