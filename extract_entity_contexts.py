@@ -18,8 +18,8 @@ def main():
                       help='Max depth in parse tree: default=%default')
     parser.add_option('-p', dest='pos', default=None,
                       help='Filter by POS tag(s) (e.g. JJ): default=%default')
-    parser.add_option('--filter', action="store_true", dest="filter", default=False,
-                      help='Filter out unknown mental: default=%default')
+    #parser.add_option('--filter', action="store_true", dest="filter", default=False,
+    #                  help='Filter out unknown mental: default=%default')
 
     (options, args) = parser.parse_args()
 
@@ -30,7 +30,7 @@ def main():
     max_depth = int(options.max_depth)
     min_df = int(options.min_df)
     pos = options.pos
-    filter = options.filter
+    #filter = options.filter
 
     lines = fh.read_jsonlist(infile)
     df = pd.read_csv(csv_file, header=0, index_col=0)
@@ -57,18 +57,21 @@ def main():
         
         if len(words) > 2:
             event_name = df.loc[doc_id, 'title']
-            mental = df.loc[doc_id, 'mental']
-
-            outline = {'id': doc_id, 'text': ' '.join(words), 'event_name': event_name, 'mental': mental}
+            if 'mental' in words:
+                mental = 1
+            else:
+                mental = 0
+            text = ' '.join(words)
+            outline = {'id': doc_id, 'text': text, 'event_name': event_name, 'mental': mental}
             outline['name'] = event_name + '_' + str(doc_id)
             outline['simple_race'] = df.loc[doc_id, 'simple_race']
             outline['white'] = int(df.loc[doc_id, 'white'])
 
-            if filter:
-                if outline['mental'] != 'Unknown':
-                    outlines.append(outline)
-            else:
-                outlines.append(outline)
+            #if filter:
+            #    if outline['mental'] != 'Unknown':
+            #        outlines.append(outline)
+            #else:
+            outlines.append(outline)
 
     """
     all_events = {}
