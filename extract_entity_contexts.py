@@ -38,7 +38,8 @@ def main():
     stopwords = set()
 
     # go through all documents and build a vocab of relevant tuple words
-    word_counts, entity_contexts, mental_found = process_lines(lines, stopwords, max_depth=max_depth, pos=pos)
+    search_terms = ['mental', 'terrorism']
+    word_counts, entity_contexts, words_found = process_lines(lines, stopwords, search_terms, max_depth=max_depth, pos=pos)
 
     print(word_counts.most_common(n=30))
 
@@ -57,15 +58,16 @@ def main():
         
         if len(words) > 2:
             event_name = df.loc[doc_id, 'title']
-            if mental_found[doc_id] > 0:
-                mental = 1
-            else:
-                mental = 0
             text = ' '.join(words)
-            outline = {'id': doc_id, 'text': text, 'event_name': event_name, 'mental': mental}
+            outline = {'id': doc_id, 'text': text, 'event_name': event_name}
             outline['name'] = event_name + '_' + str(doc_id)
             outline['simple_race'] = df.loc[doc_id, 'simple_race']
             outline['white'] = int(df.loc[doc_id, 'white'])
+            for term in search_terms:
+                if words_found[doc_id][term] > 0:
+                    outline[term] = 1
+                else:
+                    outline[term] = 0
 
             #if filter:
             #    if outline['mental'] != 'Unknown':
@@ -92,7 +94,7 @@ def main():
     fh.write_jsonlist(outlines, os.path.join(output_dir, 'contexts.jsonlist'))
 
 
-def process_lines(lines, stopwords, max_depth=2, pos=None):
+def process_lines(lines, stopwords, search_terms, max_depth=2, pos=None):
     """
     Call me twice! First with vocab=None to choose a vocab, and then with a learned vocab to extract entities
     """
@@ -100,7 +102,7 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
     entity_contexts = {}
 
     word_counts = Counter()
-    mental_found = {}
+    words_found = defaultdict(dict)
 
     n_articles_with_contexts = 0
     for line_i, line in enumerate(lines):
@@ -108,11 +110,13 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
             print(line_i)
         doc_id = line['id']
         tokens = line['sentences']
-        mental = 0
-        for sent in tokens:
-            if 'mental' in sent:
-                mental = 1
-        mental_found[doc_id] = mental
+        for search_word in search_terms:
+            term_found = 0
+            for sent in tokens:
+                if search_word in sent:
+                    term_found = 1
+            words_found[doc_id][search_word] = term_found
+
         deps = line['dependencies']
         corefs = line['coref']
         pos_tags = line['pos_tags']
@@ -161,7 +165,7 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
 
     print("Articles with sufficient contexts:", n_articles_with_contexts)
 
-    return word_counts, entity_contexts, mental_found
+    return word_counts, entity_contexts, words_found
 
 
 def get_neighbours(deps, sentence, head, max_depth=2):
