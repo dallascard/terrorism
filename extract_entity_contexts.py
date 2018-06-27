@@ -38,7 +38,7 @@ def main():
     stopwords = set()
 
     # go through all documents and build a vocab of relevant tuple words
-    word_counts, entity_contexts = process_lines(lines, stopwords, max_depth=max_depth, pos=pos)
+    word_counts, entity_contexts, mental_found = process_lines(lines, stopwords, max_depth=max_depth, pos=pos)
 
     print(word_counts.most_common(n=30))
 
@@ -57,7 +57,7 @@ def main():
         
         if len(words) > 2:
             event_name = df.loc[doc_id, 'title']
-            if 'mental' in words:
+            if mental_found[doc_id] > 0:
                 mental = 1
             else:
                 mental = 0
@@ -100,6 +100,7 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
     entity_contexts = {}
 
     word_counts = Counter()
+    mental_found = {}
 
     n_articles_with_contexts = 0
     for line_i, line in enumerate(lines):
@@ -107,6 +108,11 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
             print(line_i)
         doc_id = line['id']
         tokens = line['sentences']
+        mental = 0
+        for sent in tokens:
+            if 'mental' in sent:
+                mental = 1
+        mental_found[doc_id] = mental
         deps = line['dependencies']
         corefs = line['coref']
         pos_tags = line['pos_tags']
@@ -155,7 +161,7 @@ def process_lines(lines, stopwords, max_depth=2, pos=None):
 
     print("Articles with sufficient contexts:", n_articles_with_contexts)
 
-    return word_counts, entity_contexts
+    return word_counts, entity_contexts, mental_found
 
 
 def get_neighbours(deps, sentence, head, max_depth=2):
