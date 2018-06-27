@@ -56,8 +56,9 @@ def main():
         
         if len(words) > 2:
             event_name = df.loc[doc_id, 'title']
+            mental = df.loc[doc_id, 'mental']
 
-            outline = {'id': doc_id, 'text': ' '.join(words), 'event_name': event_name}
+            outline = {'id': doc_id, 'text': ' '.join(words), 'event_name': event_name, 'mental': mental}
             outline['name'] = event_name + '_' + str(doc_id)
             outline['simple_race'] = df.loc[doc_id, 'simple_race']
             outline['white'] = int(df.loc[doc_id, 'white'])
