@@ -43,6 +43,7 @@ def main():
     msa_df['n_terrorism_mentions'] = 0
     msa_df['n_unnegated_terrorism_mentions'] = 0
     msa_df['n_mental_mentions'] = 0
+    msa_df['n_islam_mentions'] = 0
 
     for i in msa_df.index:
         date = pd.to_datetime(msa_df.loc[i, 'Date'])
@@ -112,6 +113,7 @@ def main():
                 terrorism_mention = False
                 unnegated_terrorism_mention = False
                 mental_mention = False
+                islam_mention = False
                 for sentence in sentences:
                     tokens = [token['word'].lower() for token in sentence['tokens']]
                     sentence_text = ' '.join(tokens)
@@ -123,6 +125,9 @@ def main():
                             unnegated_terrorism_mention = True
                     if 'mental' in tokens:
                         mental_mention = True
+                    if 'islam' in tokens or 'islamic' in tokens or 'muslim' in tokens or 'muslims' in tokens:
+                        islam_mention = True
+
 
                 if terrorism_mention:
                     msa_df.loc[msa_id, 'n_terrorism_mentions'] += 1
@@ -130,6 +135,8 @@ def main():
                     msa_df.loc[msa_id, 'n_unnegated_terrorism_mentions'] += 1
                 if mental_mention:
                     msa_df.loc[msa_id, 'n_mental_mentions'] += 1
+                if islam_mention:
+                    msa_df.loc[msa_id, 'n_islam_mentions'] += 1
 
     msa_df.to_csv(outfile)
     print(msa_df.n_valid_articles.sum())
