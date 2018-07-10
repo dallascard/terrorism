@@ -69,6 +69,24 @@ def main():
             ax.text(proj[i, 0], proj[i, 1], 'Orlando', fontsize=8, alpha=0.6, ha='center', va='baseline')
         if word == 'msa-san-bernardino,-california':
             ax.text(proj[i, 0], proj[i, 1], 'San Bernadino', fontsize=8, alpha=0.6, ha='center', va='baseline')
+        if word == 'msa-amnicola-training-center,-chattanooga':
+            ax.text(proj[i, 0], proj[i, 1], 'Chattanooga', fontsize=8, alpha=0.6, ha='center', va='baseline')
+        if word == 'msa-columbine-high-school':
+            ax.text(proj[i, 0], proj[i, 1], 'Columbine', fontsize=8, alpha=0.6, ha='center', va='baseline')
+        if word == 'msa-westside-middle-school':
+            ax.text(proj[i, 0], proj[i, 1], 'Westside Middle School', fontsize=8, alpha=0.6, ha='center', va='baseline')
+        if word == 'msa-heritage-high-school':
+            ax.text(proj[i, 0], proj[i, 1], 'Heritage High School', fontsize=8, alpha=0.6, ha='center', va='baseline')
+        if word == 'msa-virginia-tech--campus':
+            ax.text(proj[i, 0], proj[i, 1], 'Virginia Tech', fontsize=8, alpha=0.6, ha='center', va='baseline')
+        if word == 'msa-tucson,-arizona':
+            ax.text(proj[i, 0], proj[i, 1], 'Tuscon, Arizona', fontsize=8, alpha=0.6, ha='center', va='baseline')
+        if word == 'msa-movie-theater-in-aurora':
+            ax.text(proj[i, 0], proj[i, 1], 'Aurora', fontsize=8, alpha=0.6, ha='center', va='baseline')
+        if word == 'msa-mother-emanuel-ame-church':
+            ax.text(proj[i, 0], proj[i, 1], 'Mother Emanuel', fontsize=8, alpha=0.6, ha='center', va='baseline')
+        if word == 'Umpqua Community College':
+            ax.text(proj[i, 0], proj[i, 1], 'Umpqua Community College', fontsize=8, alpha=0.6, ha='center', va='baseline')
 
 
         #if word in target_words:
