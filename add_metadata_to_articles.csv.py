@@ -26,18 +26,28 @@ def main():
     print(df.head())
 
     n_not_found = 0
+    outlines = []
     for line in articles:
         caseid = str(line['caseid'])
         name = line['name']
-        if caseid in df.index:
-            row = df.loc[caseid]
-            df_name = row['Shooter Name']
-            white = row['EKG white']
-            line['white'] = str(white)
+        if caseid == '156' or caseid == '168':
+            row = df[(df.index == caseid) & (df['Shooter Name'] == name)]
         else:
-            print("CaseID {:s} not found in csv".format(caseid))
+            row = df.loc[caseid]
+        df_name = row['Shooter Name']
+        try:
+            white = int(row['EKG white'])
+            if white == 0 or white == 1:
+                line['white'] = str(white)
+                outlines.append(line)
 
-    fh.write_jsonlist(articles, outfile)
+        except Exception as e:
+            print(row['EKG white'], name, df_name)
+
+        #else:
+        #    print("CaseID {:s} not found in csv".format(caseid))
+
+    fh.write_jsonlist(outlines, outfile)
 
 
 
