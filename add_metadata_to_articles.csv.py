@@ -1,13 +1,13 @@
+import os
 from optparse import OptionParser
 
-import numpy as np
 import pandas as pd
 
 import file_handling as fh
 
 
 def main():
-    usage = "%prog articles.jsonlist metadata.csv outputfile.jsonlist"
+    usage = "%prog articles.jsonlist metadata.csv output_dir"
     parser = OptionParser(usage=usage)
     #parser.add_option('--keyword', dest='key', default=None,
     #                  help='Keyword argument: default=%default')
@@ -18,38 +18,55 @@ def main():
 
     infile = args[0]
     meta_file = args[1]
-    outfile = args[2]
+    output_dir = args[2]
 
     articles = fh.read_jsonlist(infile)
     df = pd.read_csv(meta_file, header=0, index_col=0)
     df.index = [str(i) for i in df.index]
     print(df.head())
 
-    n_not_found = 0
+    victim_counts = []
+    fatality_counts = []
+    white = []
+    black = []
+
     outlines = []
     for line in articles:
         caseid = str(line['caseid'])
         name = line['name']
         if caseid == '156' or caseid == '168':
-            row = df[(df.index == caseid) & (df['Shooter Name'] == name)]
+            # differentiate on name for two ids that have duplicates
+            row = df[(df['CaseID'] == caseid) & (df['name'] == name)]
         else:
-            row = df.loc[caseid]
+            # otherwise, just use the id
+            row = df[df['CaseID'] == caseid]
         df_name = row['Shooter Name']
-        try:
-            white = int(row['EKG white'])
-            if white == 0 or white == 1:
-                line['white'] = str(white)
-                outlines.append(line)
+        line['state'] = row['state']
+        line['white'] = row['ekg_white']
+        white.append(row['ekg_white'])
+        black.append(row['ekg_black'])
+        line['black'] = row['ekg_white']
+        line['mental'] = row['mental']
+        line['fate'] = row['fate_at_scene']
+        line['fatalities'] = row['ekg_white']
+        line['victims'] = row['ekg_white']
+        victim_counts.append(row['victims'])
+        fatality_counts.append(row['fatalities'])
+        outlines.append(line)
 
-        except Exception as e:
-            print(row['EKG white'], name, df_name)
+    fh.write_jsonlist(outlines, os.path.join(output_dir, 'articles.metadata.jsonlist'))
 
-        #else:
-        #    print("CaseID {:s} not found in csv".format(caseid))
+    victims_df = pd.DataFrame(victim_counts, index=articles.index, columns=['victims'])
+    victims_df.to_csv(os.path.join(output_dir, 'victims.csv'))
 
-    fh.write_jsonlist(outlines, outfile)
+    fatalities_df = pd.DataFrame(fatality_counts, index=articles.index, columns=['fatalities'])
+    fatalities_df.to_csv(os.path.join(output_dir, 'fatalities.csv'))
 
+    white_df = pd.DataFrame(white, index=articles.index, columns=['white'])
+    white_df.to_csv(os.path.join(output_dir, 'white.csv'))
 
+    black_df = pd.DataFrame(black, index=articles.index, columns=['black'])
+    black_df.to_csv(os.path.join(output_dir, 'black.csv'))
 
 
 if __name__ == '__main__':
