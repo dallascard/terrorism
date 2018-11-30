@@ -72,7 +72,7 @@ def main():
     black_df = pd.DataFrame(black, index=ids, columns=['black'])
     black_df.to_csv(os.path.join(output_dir, 'train.black.csv'))
 
-    mental_df = pd.DataFrame(mental, index=ids, columns=['black'])
+    mental_df = pd.DataFrame(mental, index=ids, columns=['mental'])
     mental_df.to_csv(os.path.join(output_dir, 'train.mental.csv'))
 
 
