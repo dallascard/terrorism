@@ -29,6 +29,7 @@ def main():
     fatality_counts = []
     white = []
     black = []
+    mental = []
 
     outlines = []
     for line_i, line in enumerate(articles):
@@ -48,6 +49,7 @@ def main():
         white.append(int(row['ekg_white']))
         black.append(int(row['ekg_black']))
         line['mental'] = int(row['mental'])
+        mental.append(int([row['mental']]))
         line['fate'] = str(row['fate_at_scene'].values[0])
         line['fatalities'] = int(row['ekg_white'])
         line['victims'] = int(row['ekg_white'])
@@ -59,16 +61,19 @@ def main():
 
     ids = list(range(len(victim_counts)))
     victims_df = pd.DataFrame(victim_counts, index=ids, columns=['victims'])
-    victims_df.to_csv(os.path.join(output_dir, 'victims.csv'))
+    victims_df.to_csv(os.path.join(output_dir, 'train.victims.csv'))
 
     fatalities_df = pd.DataFrame(fatality_counts, index=ids, columns=['fatalities'])
-    fatalities_df.to_csv(os.path.join(output_dir, 'fatalities.csv'))
+    fatalities_df.to_csv(os.path.join(output_dir, 'train.fatalities.csv'))
 
     white_df = pd.DataFrame(white, index=ids, columns=['white'])
-    white_df.to_csv(os.path.join(output_dir, 'white.csv'))
+    white_df.to_csv(os.path.join(output_dir, 'train.white.csv'))
 
     black_df = pd.DataFrame(black, index=ids, columns=['black'])
-    black_df.to_csv(os.path.join(output_dir, 'black.csv'))
+    black_df.to_csv(os.path.join(output_dir, 'train.black.csv'))
+
+    mental_df = pd.DataFrame(mental, index=ids, columns=['black'])
+    mental_df.to_csv(os.path.join(output_dir, 'train.mental.csv'))
 
 
 if __name__ == '__main__':
