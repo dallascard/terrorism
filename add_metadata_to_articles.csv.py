@@ -31,41 +31,43 @@ def main():
     black = []
 
     outlines = []
-    for line in articles:
-        caseid = str(line['caseid'])
+    for line_i, line in enumerate(articles):
+        if line_i % 1000 == 0:
+            print(line_i)
+        caseid = int(line['caseid'])
         name = line['name']
-        if caseid == '156' or caseid == '168':
+        if caseid == 156 or caseid == 168:
             # differentiate on name for two ids that have duplicates
             row = df[(df['CaseID'] == caseid) & (df['name'] == name)]
         else:
             # otherwise, just use the id
             row = df[df['CaseID'] == caseid]
-        df_name = row['Shooter Name']
-        line['state'] = row['state']
-        line['white'] = row['ekg_white']
-        white.append(row['ekg_white'])
-        black.append(row['ekg_black'])
-        line['black'] = row['ekg_white']
-        line['mental'] = row['mental']
-        line['fate'] = row['fate_at_scene']
-        line['fatalities'] = row['ekg_white']
-        line['victims'] = row['ekg_white']
-        victim_counts.append(row['victims'])
-        fatality_counts.append(row['fatalities'])
+        line['state'] = str(row['state'].values[0])
+        line['white'] = int(row['ekg_white'])
+        line['black'] = int(row['ekg_white'])
+        white.append(int(row['ekg_white']))
+        black.append(int(row['ekg_black']))
+        line['mental'] = int(row['mental'])
+        line['fate'] = str(row['fate_at_scene'].values[0])
+        line['fatalities'] = int(row['ekg_white'])
+        line['victims'] = int(row['ekg_white'])
+        victim_counts.append(int(row['victims']))
+        fatality_counts.append(int(row['fatalities']))
         outlines.append(line)
 
-    fh.write_jsonlist(outlines, os.path.join(output_dir, 'articles.metadata.jsonlist'))
+    fh.write_jsonlist(outlines, os.path.join(output_dir, 'articles.metadata.jsonlist'), sort_keys=False)
 
-    victims_df = pd.DataFrame(victim_counts, index=articles.index, columns=['victims'])
+    ids = list(range(len(victim_counts)))
+    victims_df = pd.DataFrame(victim_counts, index=ids, columns=['victims'])
     victims_df.to_csv(os.path.join(output_dir, 'victims.csv'))
 
-    fatalities_df = pd.DataFrame(fatality_counts, index=articles.index, columns=['fatalities'])
+    fatalities_df = pd.DataFrame(fatality_counts, index=ids, columns=['fatalities'])
     fatalities_df.to_csv(os.path.join(output_dir, 'fatalities.csv'))
 
-    white_df = pd.DataFrame(white, index=articles.index, columns=['white'])
+    white_df = pd.DataFrame(white, index=ids, columns=['white'])
     white_df.to_csv(os.path.join(output_dir, 'white.csv'))
 
-    black_df = pd.DataFrame(black, index=articles.index, columns=['black'])
+    black_df = pd.DataFrame(black, index=ids, columns=['black'])
     black_df.to_csv(os.path.join(output_dir, 'black.csv'))
 
 
