@@ -49,7 +49,7 @@ def main():
         white.append(int(row['ekg_white']))
         black.append(int(row['ekg_black']))
         line['mental'] = int(row['mental'])
-        mental.append(int([row['mental']]))
+        mental.append(int(row['mental']))
         line['fate'] = str(row['fate_at_scene'].values[0])
         line['fatalities'] = int(row['ekg_white'])
         line['victims'] = int(row['ekg_white'])
