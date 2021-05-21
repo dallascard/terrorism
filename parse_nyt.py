@@ -19,8 +19,8 @@ def main():
                       help='Name of field with text (comma-separated): default=%default')
     parser.add_option('--outfield', type=str, default='tokens',
                       help='Name of corresponding output fields (comma-separated): default=%default')
-    parser.add_option('--total', type=int, default=None,
-                      help='Manually provide the number of lines to tqdm: default=%default')
+    #parser.add_option('--total', type=int, default=None,
+    #                  help='Manually provide the number of lines to tqdm: default=%default')
     parser.add_option('--max-lines', type=int, default=None,
                       help='Only process this many lines: default=%default')
     parser.add_option('--convert-parens', action="store_true", default=False,
@@ -41,11 +41,12 @@ def main():
     files = sorted(glob(os.path.join(indir, '*.jsonlist')))
 
     for infile in files:
+        print(infile)
         basename = os.path.basename(infile)
         outfile = os.path.join(outdir, basename)
         infield = options.infield
         outfield = options.outfield
-        total = options.total
+        total = None
         max_lines = options.max_lines
         convert_parens = options.convert_parens
         quiet = options.quiet
