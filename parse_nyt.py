@@ -83,6 +83,8 @@ def tokenize(infile, outfile, infield, outfield, total, max_lines, quiet, high_m
         if max_lines is None:
             max_lines = len(lines)
 
+        total = max_lines
+
         if quiet:
             enumerator = enumerate(lines[:max_lines])
         else:
