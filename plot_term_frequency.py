@@ -16,7 +16,7 @@ import file_handling as fh
 
 
 def main():
-    usage = "%prog input_dir"
+    usage = "%prog input_dir outfile.pdf"
     parser = OptionParser(usage=usage)
     #parser.add_option('-t', dest='target_word', default='terrorism',
     #                  help='Word to put in title: default=%default')
@@ -28,7 +28,7 @@ def main():
     (options, args) = parser.parse_args()
 
     input_dir = args[0]
-    word = options.target_word
+    outfile = args[1]
 
     articles = fh.read_json(os.path.join(input_dir, 'articles_per_day.json'))
     targets = fh.read_json(os.path.join(input_dir, 'target_counts_per_day.json'))
@@ -76,7 +76,7 @@ def main():
     ax.set_xlabel('Date')
     ax.legend()
 
-    plt.savefig(word + '.pdf', bbox_inches='tight')
+    plt.savefig(outfile, bbox_inches='tight')
 
 
 
