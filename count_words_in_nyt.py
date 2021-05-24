@@ -54,15 +54,8 @@ def main():
                 text += article['text']
 
             text = ' ' + clean_text(text, lower=True) + ' '
-            # if we are searching for a phrase, look for it
-            if ' ' in target_word:
-                if target_word in text:
-                    target_count_per_day[ordinal_date] += 1
-
-            # otherwise, assume we want the exact token, so first split the text into tokens
-            else:
-                words = set(text.split())
-                if target_word in words and 'film' not in words and 'game' not in words:
+            if target_word in text:
+                if 'film' not in text and 'game' not in text:
                     target_count_per_day[ordinal_date] += 1
 
     fh.write_to_json(n_articles_per_day, os.path.join(output_dir, 'articles_per_day.json'))
